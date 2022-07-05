@@ -1,0 +1,15 @@
+/*
+*.*
+__pycache__
+
+!/ayaka
+!/kiana
+!/plugins
+
+!*.py
+!*.pyi
+!*.md
+
+!poetry.lock
+!pyproject.toml
+!.gitignore
