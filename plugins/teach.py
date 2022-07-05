@@ -9,12 +9,12 @@ cache = Cache()
 app = AyakaApp(name='teach')
 app.help = {
     "idle": "教机器人说话",
-    'menu': "[add] 添加\n[change] 修改",
+    'menu': "[#add] 添加\n[#change] 修改",
     'add_1': "[<文字>] 输入问题",
     'add_2': "[<文字>] 输入回答",
     "change_1": "[<文字>] 输入问题以检索",
     "change_2": "[<数字>] 输入数字以选择要修改的条目",
-    "change_3": "[q] 修改问题\n[a] 修改回答\n[del] 删除本条",
+    "change_3": "[#q] 修改问题\n[#a] 修改回答\n[#del] 删除本条",
     "change_4": "[<文字>] 输入更新后的问题",
     "change_5": "[<文字>] 输入更新后的回答"
 }

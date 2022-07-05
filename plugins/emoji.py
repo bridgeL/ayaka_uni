@@ -8,7 +8,7 @@ emojiBin = load_json('data/emoji.json')
 
 app = AyakaApp(name='emoji')
 app.help = {
-    "idle": "[e <参数>] 简单查询emoji\n[emoji <参数>] 详细查询emoji",
+    "idle": "[#e <参数>] 简单查询emoji\n[#emoji <参数>] 详细查询emoji",
 }
 
 @app.command(['e','emoji'])

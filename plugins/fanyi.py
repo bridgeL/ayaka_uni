@@ -4,7 +4,7 @@ import requests
 
 app = AyakaApp(name='fanyi')
 app.help = {
-    "idle": "[fy <参数>] 缩写翻译",
+    "idle": "[#fy <参数>] 缩写翻译",
 }
 
 @app.command(['fanyi','fy','翻译'])
