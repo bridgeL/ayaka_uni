@@ -194,6 +194,7 @@ def _check_at_me(event: MessageEvent):
 async def handle_event(bot: Bot, event: Event) -> None:
     """处理一个事件。调用该函数以实现分发事件 """
     # 展示消息
+    print() # 空行分割
     log_msg = f"{Fore.MAGENTA}{bot.name}{Fore.RESET} | "
     try:
         log_msg += event.get_log_string()
