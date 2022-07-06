@@ -627,3 +627,24 @@ class Bot:
 
         """
         ...
+
+    async def send_group_forward_msg(
+      self,
+      *,
+      group_id:int,
+      messages:List[str],
+    ) -> None:
+        """
+        :说明:
+
+          发送转发数据
+
+          messages 会自动转换为nodes规范，无需特殊设置
+          https://docs.go-cqhttp.org/cqcode/#%E5%90%88%E5%B9%B6%E8%BD%AC%E5%8F%91%E6%B6%88%E6%81%AF%E8%8A%82%E7%82%B9
+
+          messages列表长度<100
+
+        """
+        ...
+
+

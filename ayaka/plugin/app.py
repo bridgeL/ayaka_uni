@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Callable, List, Union
 from pydantic import BaseModel
 
@@ -10,17 +9,72 @@ from .device import AyakaDevice
 
 
 class AyakaTrigger(BaseModel):
-    plugin_name: str
+    app_name: str
     state: str      # 使用state和command实现触发间的隔离
     command: str    # 为空是消息触发，否则是命令触发
     handler: Callable
+
+    def __init__(self, app_name, state, command, handler) -> None:
+        # 对handler进行加工，使其被触发发送提示
+        if command:
+            ans1 = f"命令 {Fore.GREEN}{command}{Fore.RESET}"
+        else:
+            ans1 = "消息"
+
+        async def _handler(bot, event, device):
+            get_logger().info(
+                "触发",
+                f"插件 {Fore.YELLOW}{app_name}{Fore.RESET}", "|",
+                f"状态 {Fore.CYAN}{state}{Fore.RESET}", "|",
+                ans1
+            )
+            return await handler(bot, event, device)
+
+        # 初始化
+        super().__init__(
+            app_name=app_name,
+            state=state,
+            command=command,
+            handler=_handler
+        )
+
+        # 提示添加成功
+        if command:
+            ans = f"新增命令触发 [{Fore.GREEN}{command}{Fore.RESET}]"
+        else:
+            ans = "新增消息触发"
+
+        get_logger().debug(
+            f"{Fore.YELLOW}{app_name}{Fore.RESET}", "|",
+            f"状态[{Fore.CYAN}{state}{Fore.RESET}]",
+            ans
+        )
 
 
 class Timer(BaseModel):
     time_i: int
     date_s: str = ''
-    plugin_name: str
+    app_name: str
     func: Callable
+
+    def __init__(self, time_s, app_name, func) -> None:
+        # 对func进行加工，使其被触发发送提示
+        async def _handler(bot, event, device):
+            get_logger().success(
+                "触发定时器",
+                f"{Fore.YELLOW}{app_name}{Fore.RESET}",
+                f"{time_s}"
+            )
+            return await func(bot, event, device)
+
+        time_i = get_time_i_pure(time_s)
+        super().__init__(time_i=time_i, func=_handler, app_name=app_name)
+
+        # 提示添加成功
+        get_logger().debug(
+            f"{Fore.YELLOW}{app_name}{Fore.RESET}", "|",
+            f"新增每日定时触发 {time_s}"
+        )
 
 
 class AyakaApp:
@@ -30,6 +84,7 @@ class AyakaApp:
     ) -> None:
         self.name = name
         self.triggers: List[AyakaTrigger] = []
+        self.supervise_list = []
         self._help = {"idle": "测试用例"}
 
         app_list.add_plugin(self)
@@ -58,23 +113,11 @@ class AyakaApp:
             _cmds = [cmds] if type(cmds) is str else cmds
             _states = [states] if type(states) is str else states
 
-            cmd_str = ' '.join(
-                [f"[{Fore.GREEN}{c}{Fore.RESET}]" for c in _cmds])
-
             for state in _states:
                 for cmd in _cmds:
-                    trigger = AyakaTrigger(
-                        plugin_name=self.name,
-                        state=state,
-                        command=cmd,
-                        handler=func
-                    )
+                    trigger = AyakaTrigger(self.name, state, cmd, func)
                     self.triggers.append(trigger)
-                get_logger().info(
-                    f"{Fore.YELLOW}{self.name}{Fore.RESET}", "|",
-                    f"状态[{Fore.CYAN}{state}{Fore.RESET}]",
-                    f"新增命令触发{cmd_str}"
-                )
+
             return func
 
         return _decorator
@@ -84,31 +127,26 @@ class AyakaApp:
         state: str = 'idle',
     ):
         def _decorator(func: Callable):
-            trigger = AyakaTrigger(
-                plugin_name=self.name,
-                state=state,
-                command="",
-                handler=func
-            )
+            trigger = AyakaTrigger(self.name, state, "", func)
             self.triggers.append(trigger)
-            get_logger().info(
+            return func
+        return _decorator
+
+    def supervise(self):
+        '''无论情况如何，所有消息都会优先传递给supervise触发器'''
+        def _decorator(func: Callable):
+            self.supervise_list.append(func)
+            get_logger().debug(
                 f"{Fore.YELLOW}{self.name}{Fore.RESET}", "|",
-                f"状态[{Fore.CYAN}{state}{Fore.RESET}]",
-                "新增消息触发"
+                f"新增监视触发"
             )
             return func
-
         return _decorator
 
     def everyday(self, time_s: str):
         def _decorator(func: Callable):
-            time_i = get_time_i_pure(time_s)
-            timer = Timer(time_i=time_i, func=func, plugin_name=self.name)
+            timer = Timer(time_s, self.name, func)
             timer_list.append(timer)
-            get_logger().info(
-                f"{Fore.YELLOW}{self.name}{Fore.RESET}", "|",
-                f"新增每日定时触发 {time_s}"
-            )
             return func
 
         return _decorator
@@ -130,6 +168,12 @@ class AyakaAppList:
             if plugin.name == name:
                 return plugin
         return None
+
+    def get_supervise_list(self):
+        result = []
+        for plugin in self.items:
+            result.extend(plugin.supervise_list)
+        return result
 
     def get_triggers(self, device: AyakaDevice):
         app_name = device.get_app_name()

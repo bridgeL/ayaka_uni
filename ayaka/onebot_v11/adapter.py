@@ -26,29 +26,45 @@ class Adapter:
             raise TypeError("Current driver does not support websocket server")
         self.driver.setup_websocket_server(setup)
 
-    def cqhttp_fuck(self, data):
+    def cqhttp_fuck_len(self, msg):
+        s = str(msg)
+        s = unescape(s)
+        bs = s.encode('utf8')
+        return len(bs)
+
+    def cqhttp_fuck(self, msg, ban_range:list=[119, 121, 123, 125]):
         """ 傻逼风控bug
             我怀疑是cqhttp的排版问题导致发送失败）
             该长度其实也不单是根据encode utf8长度来判断，还要根据html转义前的utf8长度判断。。傻逼
             比如&#91;占5个长度，其实相当于1个长度
         """
-        s = str(data["message"])
-        s = unescape(s)
-        bs = s.encode('utf8')
-        get_logger().debug("转义前utf8字符长度", f"{Fore.YELLOW}{len(bs)}", module_name=__name__)
-
-        if len(bs) in [119, 121, 123, 125]:
-            s += ' '
-            data["message"] = Message(s)
-        return data
+        length = self.cqhttp_fuck_len(msg)
+        get_logger().debug("转义前utf8字符长度", f"{Fore.YELLOW}{length}", module_name=__name__)
+        if length in ban_range:
+            return str(msg) + " "
+        return msg
 
 
     async def _call_api(self, bot_id: str, api: str, **data: Any) -> Any:
+        get_logger().debug("Calling API " + Fore.YELLOW + api, module_name=__name__)
+
         if api in ["send_msg","send_group_msg","send_private_msg"]:
-            data = self.cqhttp_fuck(data)
+            msg = data["message"]
+            msg = self.cqhttp_fuck(msg)
+            data["message"] = msg
+
+        if api == "send_group_forward_msg":
+            # 对每个node都要fuck一遍
+            nodes = data['messages']
+            for node in nodes:
+                msg = node['data']['content']
+                msg = self.cqhttp_fuck(msg, ban_range=[58,60])
+                node['data']['content'] = msg
+
+            data['messages'] = nodes
+
 
         websocket = self.connections.get(bot_id, None)
-        get_logger().debug("Calling API " + Fore.YELLOW + api, module_name=__name__)
         if websocket:
             seq = ResultStore.get_seq()
             json_data = json.dumps(

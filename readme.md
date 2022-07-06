@@ -9,6 +9,8 @@
 ```bash
 # install
 poetry install
+# 不同系统上一些包的依赖也可能不一样，因此如果运行时提示某些包缺失，自己装上就好（乐）
+
 # start
 poetry run python bot.py
 ```
@@ -104,7 +106,7 @@ async def handle(bot:Bot, event:GroupMessageEvent, device):
 
 ## trigger
 
-`app`可以注册的触发器有三种：消息触发、命令触发、定时触发
+`app`可以注册的触发器有四种：消息触发、命令触发、定时触发、监视触发
 
 命令触发`@app.command()`可由形如 #xxx arg1 arg2 的消息触发，xxx为指定命令或命令组
 
@@ -112,6 +114,7 @@ async def handle(bot:Bot, event:GroupMessageEvent, device):
 
 定时触发`@app.everyday()`每日到达设定时间时便会触发一次，ayaka的扫描周期为1s（与heartbeat周期相同，可修改cqhttp中的设置）
 
+监视触发`@app.supervise()`将无条件在任何触发之前，抢先处理event
 
 
 # 拆解笔记

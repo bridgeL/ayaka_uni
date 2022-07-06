@@ -88,7 +88,7 @@ async def find_questions(bot: Bot, event: GroupMessageEvent, device: AyakaDevice
     await send_group_forward_safe(bot, event, ans_list)
 
     id_list = [d["id"] for d in data]
-    cache.set_cache([device.id, 'id_list'], id_list)
+    cache.set_cache(device.id, 'id_list', data = id_list)
     await set_state_and_send_help(bot, event, device, "change_2")
 
 
@@ -118,7 +118,7 @@ async def add_0(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
         return
 
     if len(args) == 1:
-        cache.set_cache([device.id, 'question'],  args[0])
+        cache.set_cache(device.id, 'question',  data=args[0])
         await set_state_and_send_help(bot, event, device, "add_2")
         return
 
@@ -136,7 +136,7 @@ async def add_1(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
         await bot.send(event, '输入为空')
         return
 
-    cache.set_cache([device.id, 'question'], args[0])
+    cache.set_cache(device.id, 'question', data=args[0])
     await set_state_and_send_help(bot, event, device, "add_2")
     return True
 
@@ -223,7 +223,7 @@ async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
     ans = corpus_data_2_str(data)
     await bot.send(event, ans)
 
-    cache.set_cache([device.id, 'id'], id)
+    cache.set_cache(device.id, 'id', data=id)
     await set_state_and_send_help(bot, event, device, "change_3")
     return True
 

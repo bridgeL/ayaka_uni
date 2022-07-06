@@ -59,51 +59,49 @@ def save_json_list(path: str, data: list):
 
     f.write(f"]\n")
 
+def _check_big(data):
+    '''
+    需要分行
+    data = {
+        a : {}
+    }
+
+    不需要分行
+    data = { a : sdf }
+    data = sdf
+    '''
+    if isinstance(data, dict):
+        for v in data.values():
+            if isinstance(v, dict):
+                return True
+    return False
+
+def _save_dict(f:FileIO, data: dict, level: int):
+    '''特别定制'''
+
+    if _check_big(data):
+        tab = "    "
+        t = tab * level
+
+        f.write("{")
+
+        keys = list(data.keys())
+        for i, key in enumerate(keys):
+            val = data[key]
+            f.write("\n" + t + tab + f'"{key}": ')
+            _save_dict(f, val, level+1)
+
+            if i < len(keys) - 1:
+                f.write(',')
+
+        f.write("\n" + t + "}")
+    else:
+        s = json.dumps(data, ensure_ascii=False)
+        f.write(s)
 
 def save_json_dict(path: str, data: dict):
     """特别定制"""
     f = open(path, 'w+', encoding='utf8')
-
-    def _check_big(data):
-        '''
-        需要分行
-        data = {
-            a : {}
-        }
-
-        不需要分行
-        data = { a : sdf }
-        data = sdf
-        '''
-        if isinstance(data, dict):
-            for v in data.values():
-                if isinstance(v, dict):
-                    return True
-        return False
-
-    def _save_dict(f:FileIO, data: dict, level: int):
-
-        if _check_big(data):
-
-            tab = "    "
-            t = tab * level
-
-            f.write("{")
-
-            keys = list(data.keys())
-            for i, key in enumerate(keys):
-                val = data[key]
-                f.write("\n" + t + tab + f'"{key}": ')
-                _save_dict(f, val, level+1)
-
-                if i < len(keys) - 1:
-                    f.write(',')
-
-            f.write("\n" + t + "}")
-        else:
-            s = json.dumps(data, ensure_ascii=False)
-            f.write(s)
-
     _save_dict(f, data, 0)
 
 

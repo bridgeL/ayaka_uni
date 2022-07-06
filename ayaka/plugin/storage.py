@@ -66,15 +66,15 @@ class Cache:
     def __init__(self) -> None:
         self.cache = {}
 
-    def set_cache(self, keys:list, _data):
-        data = self.cache
+    def set_cache(self, *keys:str, data):
+        _data = self.cache
 
         # 赋值
         for key in keys[:-1]:
-            if key not in data:
-                data[key] = {}
-            data = data[key]
-        data[keys[-1]] = _data
+            if key not in _data:
+                _data[key] = {}
+            _data = _data[key]
+        _data[keys[-1]] = data
 
     def get_cache(self, *keys:str):
         data = self.cache

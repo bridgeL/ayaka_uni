@@ -1,6 +1,7 @@
-from typing import Any, Union
+from typing import Any, List, Union
 from functools import partial
 from typing_extensions import Protocol
+from ayaka.div import pack_message_nodes
 
 from ayaka.utils import escape
 
@@ -93,3 +94,11 @@ class Bot:
         params["message"] = msg
 
         return await self.call_api("send_msg", **params)
+
+    async def send_group_forward_msg(
+      self,
+      group_id:int,
+      messages:List[str],
+    ) -> None:
+        nodes = pack_message_nodes(messages)
+        return await self.call_api("send_group_forward_msg", group_id=group_id, messages=nodes)

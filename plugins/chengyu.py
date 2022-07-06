@@ -4,10 +4,11 @@ from pypinyin import lazy_pinyin
 from ayaka.lazy import *
 from ayaka.div import div_cmd_arg
 from kiana.file import load_json
+from plugins.bag import get_uid_name, get_name
 
 app = AyakaApp(name="chengyu")
 app.help = {
-    "idle": "成语接龙（肯定是你输\n[#cy <参数>] 查询成语\n[什么是 <参数>] 查询成语\n[<参数> 是什么] 查询成语"
+    "idle": "成语接龙（肯定是你输\n[#cy <参数>] 查询成语\n[什么是 <参数>] 查询成语\n[<参数> 是什么] 查询成语\n[#成语统计] 查询历史记录"
 }
 
 whole_bin: dict = load_json("data/chengyu/bin.json")
@@ -127,3 +128,22 @@ async def handle(bot:Bot, event:GroupMessageEvent, device):
         await bot.send(event, app.help['idle'])
     else:
         await inquire(bot, event, args[0], must=True)
+
+
+@app.command("成语统计")
+async def handle(bot:Bot, event:GroupMessageEvent, device:AyakaDevice):
+
+    cmd, args, arg = div_cmd_arg("成语统计", event.message)
+    if len(args) >= 1:
+        uid, name = await get_uid_name(bot, event, args[0])
+    else:
+        uid = event.user_id
+        name = get_name(event)
+
+    if not uid:
+        await bot.send(event, "查无此人")
+        return
+
+    cnt = Storage(device.id, app.name, 'members', uid).get(0)
+
+    await bot.send(event, f"[{name}] 从本功能诞生起至今已成功接龙 {cnt}次~")
