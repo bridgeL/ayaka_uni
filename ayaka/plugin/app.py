@@ -17,18 +17,25 @@ class AyakaTrigger(BaseModel):
     def __init__(self, app_name, state, command, handler) -> None:
         # 对handler进行加工，使其被触发发送提示
         if command:
-            ans1 = f"命令 {Fore.GREEN}{command}{Fore.RESET}"
+            async def _handler(bot, event, device):
+                get_logger().info(
+                        "触发",
+                        f"插件 {Fore.YELLOW}{app_name}{Fore.RESET}", "|",
+                        f"状态 {Fore.CYAN}{state}{Fore.RESET}", "|",
+                        f"命令 {Fore.GREEN}{command}{Fore.RESET}"
+                    )
+                return await handler(bot, event, device)
         else:
-            ans1 = "消息"
-
-        async def _handler(bot, event, device):
-            get_logger().info(
-                "触发",
-                f"插件 {Fore.YELLOW}{app_name}{Fore.RESET}", "|",
-                f"状态 {Fore.CYAN}{state}{Fore.RESET}", "|",
-                ans1
-            )
-            return await handler(bot, event, device)
+            async def _handler(bot, event, device):
+                ret = await handler(bot, event, device)
+                if ret:
+                    get_logger().info(
+                        "触发",
+                        f"插件 {Fore.YELLOW}{app_name}{Fore.RESET}", "|",
+                        f"状态 {Fore.CYAN}{state}{Fore.RESET}", "|",
+                        "消息"
+                    )
+                return ret
 
         # 初始化
         super().__init__(
