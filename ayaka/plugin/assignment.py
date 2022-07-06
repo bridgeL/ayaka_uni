@@ -27,11 +27,11 @@ async def deal_message(bot: Bot, event: GroupMessageEvent):
     device = AyakaDevice(id=event.group_id)
 
     app_name = device.get_app_name()
-    if app_name:
-        get_logger().success(
-            f"{Fore.CYAN}{device.id}{Fore.RESET}", "|",
-            f"正在运行 {Fore.YELLOW}{app_name}{Fore.RESET}"
-        )
+    # if app_name:
+    #     get_logger().success(
+    #         f"{Fore.CYAN}{device.id}{Fore.RESET}", "|",
+    #         f"正在运行 {Fore.YELLOW}{app_name}{Fore.RESET}"
+    #     )
 
     '''遍历plugin
 
@@ -56,13 +56,12 @@ async def deal_message(bot: Bot, event: GroupMessageEvent):
             '''
 
             if text.startswith(f"#{trigger.command}"):
-                items = [
+                get_logger().success(
                     "触发插件",
                     f"{Fore.YELLOW}{trigger.plugin_name}{Fore.RESET}", "|",
                     f"{Fore.CYAN}{trigger.state}{Fore.RESET}", "|",
                     f"{Fore.GREEN}{trigger.command}{Fore.RESET}"
-                ]
-                get_logger().success(*items)
+                )
                 await trigger.handler(bot, event, device)
                 return
 
@@ -71,11 +70,10 @@ async def deal_message(bot: Bot, event: GroupMessageEvent):
 
             输入：bot, event, device
             '''
-            items = [
+            get_logger().success(
                 "触发插件",
                 f"{Fore.YELLOW}{trigger.plugin_name}{Fore.RESET}"
-            ]
-            get_logger().success(*items)
+            )
 
             if await trigger.handler(bot, event, device):
                 return

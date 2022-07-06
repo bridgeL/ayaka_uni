@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from .storage import Storage
+from ayaka.logger import get_logger, Fore
 
 class AyakaDevice(BaseModel):
     """现阶段只接受群聊"""
@@ -24,11 +25,19 @@ class AyakaDevice(BaseModel):
             return False, info
 
         self.set_app_name(app_name)
-        return True, f"[{app_name}] 成功启动"
+        get_logger().success(
+            f"{Fore.CYAN}{self.id}{Fore.RESET}", "|",
+            f"已启动应用 {Fore.YELLOW}{app_name}{Fore.RESET}"
+        )
+        return True, f"已启动应用 [{app_name}]"
 
     def stop_app(self):
         app_name = self.get_app_name()
         self.set_app_name('')
+        get_logger().success(
+            f"{Fore.CYAN}{self.id}{Fore.RESET}", "|",
+            f"已关闭应用 {Fore.YELLOW}{app_name}{Fore.RESET}"
+        )
         return True, f"已关闭应用 [{app_name}]"
 
 
