@@ -47,13 +47,17 @@ def save_json(path: str, data: dict):
 def save_json_list(path: str, data: list):
     '''向指定路径保存列表，一行一条'''
     f = open(path, 'w+', encoding='utf8')
+    tab = "    "
     f.write('[\n')
-    for d in data[:-1]:
-        s = json.dumps(d, ensure_ascii=False)
-        f.write(f"\t{s},\n")
 
-    s = json.dumps(data[-1], ensure_ascii=False)
-    f.write(f"\t{s}\n]\n")
+    for i, d in enumerate(data):
+        s = json.dumps(d, ensure_ascii=False)
+        f.write(f"{tab}{s}")
+        if i < len(data) - 1:
+            f.write(",")
+        f.write("\n")
+
+    f.write(f"]\n")
 
 
 def save_json_dict(path: str, data: dict):
