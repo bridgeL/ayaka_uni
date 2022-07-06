@@ -26,7 +26,7 @@ class AyakaDevice(BaseModel):
 
         self.set_app_name(app_name)
         get_logger().success(
-            f"{Fore.CYAN}{self.id}{Fore.RESET}", "|",
+            f"设备 {Fore.CYAN}{self.id}{Fore.RESET}", "|",
             f"已启动应用 {Fore.YELLOW}{app_name}{Fore.RESET}"
         )
         return True, f"已启动应用 [{app_name}]"
@@ -35,7 +35,7 @@ class AyakaDevice(BaseModel):
         app_name = self.get_app_name()
         self.set_app_name('')
         get_logger().success(
-            f"{Fore.CYAN}{self.id}{Fore.RESET}", "|",
+            f"设备 {Fore.CYAN}{self.id}{Fore.RESET}", "|",
             f"已关闭应用 {Fore.YELLOW}{app_name}{Fore.RESET}"
         )
         return True, f"已关闭应用 [{app_name}]"

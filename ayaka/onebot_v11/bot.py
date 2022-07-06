@@ -29,9 +29,9 @@ class Bot:
         return partial(self.call_api, name)
 
     @property
-    def type(self) -> str:
+    def name(self) -> str:
         """协议适配器名称"""
-        return self.adapter.get_name()
+        return self.adapter.get_name().upper()
 
     async def call_api(self, api: str, **data) -> Any:
         """
