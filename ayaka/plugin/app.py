@@ -27,15 +27,13 @@ class AyakaTrigger(BaseModel):
                 return await handler(bot, event, device)
         else:
             async def _handler(bot, event, device):
-                ret = await handler(bot, event, device)
-                if ret:
-                    get_logger().info(
-                        "触发",
-                        f"插件 {Fore.YELLOW}{app_name}{Fore.RESET}", "|",
-                        f"状态 {Fore.CYAN}{state}{Fore.RESET}", "|",
-                        "消息"
-                    )
-                return ret
+                get_logger().info(
+                    "触发",
+                    f"插件 {Fore.YELLOW}{app_name}{Fore.RESET}", "|",
+                    f"状态 {Fore.CYAN}{state}{Fore.RESET}", "|",
+                    "消息"
+                )
+                return await handler(bot, event, device)
 
         # 初始化
         super().__init__(
