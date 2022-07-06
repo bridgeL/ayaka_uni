@@ -4,6 +4,116 @@
 
 而且我对nonebot2的状态机也很不满意
 
+# 安装方法
+
+```bash
+# install
+poetry install
+# start
+poetry run python bot.py
+```
+
+配置cqhttp为反向ws，地址为 ws://127.0.0.1:19900/ayakabot
+
+# 插件编写
+
+```python
+from ayaka.lazy import *
+from ayaka.div import div_cmd_arg
+
+app = AyakaApp(name="test")
+app.help = {
+    "idle": "啊",
+    "test": "复读机"
+}
+
+
+# 仅当idle状态时生效
+@app.command(["测试", "test"], "idle")
+async def handle(bot: Bot, event, device: AyakaDevice):
+    # 通知device, app开始运行
+    success, info = device.start_app(app.name)
+    if success:
+        # 跳转到test状态
+        app.set_state(device, "test")
+
+    # 开启成功/失败
+    await bot.send(event, info)
+
+
+# 仅当test状态时生效
+@app.command(["退出", "exit"], "test")
+async def handle(bot:Bot, event, device: AyakaDevice):
+    # 通知device, app结束运行
+    success, info = device.stop_app()
+
+    # 跳转到idle状态
+    app.set_state(device, "idle")
+
+    # 开启成功/失败
+    await bot.send(event, info)
+
+
+# 仅当test状态时生效
+@app.message("test")
+async def handle(bot: Bot, event: GroupMessageEvent, device):
+    # 复读机
+    await bot.send(event, event.get_plaintext())
+
+    # 告知系统该message被该插件使用
+    return True
+
+
+# 当idle、test状态时都生效
+@app.command(["复读","repeat"],["idle","test"])
+async def handle(bot:Bot, event:GroupMessageEvent, device):
+    cmd, args, arg = div_cmd_arg(["复读","repeat"], event.message)
+
+    # 复读第二个参数
+    if len(args) >= 2:
+        await bot.send(event, args[1])
+    else:
+        await bot.send(event, "参数不够多")
+
+    # arg为 排除了命令外的所有参数 的 字符串之和
+
+
+```
+
+## device
+
+一个群聊就是一个`device`
+
+一个`device`同一时间只能运行一个`app`，通过`start_app`和`stop_app`控制，它们会返回`bool`值和设备提示信息
+
+通过`device.id`或`event.group_id`均获取群聊id，但是要注意，在跨群聊插件中，这两者可能不一致，此时应以`device.id`为准
+
+保留`device`的设计是为了后续拓展跨群组应用做铺垫，例如：
+
+小明在群组A中发起了匿名投票，投票人B可私聊机器人，告知投票结果，实现匿名效果
+
+此时处理函数收到的`event`来自于私聊B，但`device`对应群聊A，`event.user_id` = B的id，`device.id` = A的id
+
+## app
+
+所有插件`app`默认状态都是`idle`
+
+`app`可以通过`set_state`方法切换到不同的状态`state`，由于一个`app`会服务多个`device`，因此除了要设置的下一个状态外，还需要传递当前的`device`对象
+
+`app`在注册触发器`trigger`时可以指定其在某个或某些状态时触发，从而实现同一个命令在不同状态下的不同触发响应，例如#exit
+
+## trigger
+
+`app`可以注册的触发器有三种：消息触发、命令触发、定时触发
+
+命令触发`@app.command()`可由形如 #xxx arg1 arg2 的消息触发，xxx为指定命令或命令组
+
+消息触发`@app.message()`可由形如 xxx arg1 arg2的触发，如果一个消息形如 #xxx arg1 arg2，但并没有对应匹配的命令触发，ayaka会将它删除#后视为 xxx arg1 arg2消息处理
+
+定时触发`@app.everyday()`每日到达设定时间时便会触发一次，ayaka的扫描周期为1s（与heartbeat周期相同，可修改cqhttp中的设置）
+
+
+
 # 拆解笔记
 
 ## nonebot.internal.adapter
@@ -97,9 +207,11 @@ logger、model、utils都是基础方法/类库
 
 assignment <-> bot <-> adapter 相互引用 相互引用 已解套
 
-通过更高层的ws流程控制解开 listen
+通过更高层的ws流程控制解开 即listen.py
 
 ayaka._\_init__ -> listen -> bot, adapter, assignment
+
+主要方式是，listen主动调用bot、adapter，将下一步的调用方法（位于listen）告知这些模块，这些模块将在恰当时候自动调用该方法，从而从adapter、bot无引用的跳转到listen
 
 
 

@@ -2,7 +2,7 @@ import json
 import asyncio
 from typing import Any, Optional
 
-from ayaka.utils import ResultStore
+from ayaka.utils import ResultStore, unescape
 from ayaka.logger import Fore, get_logger
 
 from ayaka.plugin.assignment import assign_event
@@ -200,6 +200,7 @@ async def handle_event(bot: Bot, event: Event) -> None:
     except:
         pass
     else:
+        log_msg = unescape(log_msg)
         get_logger().success(log_msg)
 
     if isinstance(event, MessageEvent):

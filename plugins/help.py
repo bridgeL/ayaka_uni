@@ -9,7 +9,7 @@ app.help =  {
 }
 
 
-def get_help(key):
+def get_help(key, state=None):
     if not key:
         names = list(help_dict.keys())
         names.insert(0, '已安装插件')
@@ -19,12 +19,23 @@ def get_help(key):
         return "没找到相关帮助"
 
     name = key
-    help = help_dict[key]['idle']
-    return f"插件名: {name}\n{help}"
+    _help:dict = help_dict[key]
+
+    if state in _help:
+        return f"插件名: {name}\n状态[{state}]的帮助\n{_help[state]}"
+    else:
+        states = [f"[{s}]" for s in _help.keys() if s != 'idle']
+        ss = " ".join(states)
+        return f"插件名: {name}\n状态[idle]的帮助\n{_help['idle']}\n其他状态：{ss}"
 
 
 @app.command(['help', '帮助'])
 async def help(bot: Bot, event: GroupMessageEvent, device):
     cmd, args, arg = div_cmd_arg(['help', '帮助'], event.message)
-    ans = get_help(arg)
+
+    if len(args) > 1:
+        ans = get_help(args[0], args[1])
+    else:
+        ans = get_help(arg)
+
     await bot.send(event, ans)

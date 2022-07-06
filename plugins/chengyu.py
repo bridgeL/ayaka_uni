@@ -15,10 +15,10 @@ chengyu_list = list(whole_bin.keys())
 
 easy_bin: dict = load_json("data/chengyu/easy.json")
 hard_bin: dict = load_json("data/chengyu/hard.json")
-
+# 这里应该加个计分功能
 
 @app.message()
-async def handle(bot: Bot, event: GroupMessageEvent, device):
+async def handle(bot: Bot, event: GroupMessageEvent, device:AyakaDevice):
     msg = event.get_plaintext()
 
     # 判断是不是在问问题
@@ -51,6 +51,19 @@ async def handle(bot: Bot, event: GroupMessageEvent, device):
     if msg not in chengyu_list:
         return
 
+    # 读取上次
+    ST = Storage(device.id, app.name, 'last')
+    last = ST.get("")
+
+    from plugins.bag import add_money
+    py1 = lazy_pinyin(msg[0])[0]
+
+    if py1 == last:
+        add_money(1000, event=event)
+        await bot.send(event, f"奖励1000金")
+        Storage(device.id, app.name, 'members', event.user_id).inc()
+
+    # 准备下次
     ans = None
     py = lazy_pinyin(msg[-1])[0]
     if py in easy_bin:
@@ -73,8 +86,16 @@ async def handle(bot: Bot, event: GroupMessageEvent, device):
         py2 = lazy_pinyin(ans[-1])[0]
         ans = f"[{py}] {ans} [{py2}]"
         await bot.send(event, ans)
+
+        # 保存
+        ST.set(py2)
+
     else:
         await bot.send(event, "你赢了")
+
+        add_money(10000, event=event)
+        ST.set("")
+        await bot.send(event, f"奖励10000金")
 
     return True
 
@@ -97,6 +118,7 @@ async def inquire(bot: Bot, event: GroupMessageEvent, msg: str, must=False):
         await bot.send(event, ans)
 
     return True
+
 
 @app.command(["cy","成语"])
 async def handle(bot:Bot, event:GroupMessageEvent, device):

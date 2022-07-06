@@ -19,6 +19,9 @@ class Storage:
 
         # 读取文件
         data = load_json(path)
+        if not data:
+            print(path,"读取数据为空")
+            return
 
         # 留着后续保存
         whole_data = data
