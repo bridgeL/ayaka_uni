@@ -4,7 +4,7 @@ from pypinyin import lazy_pinyin
 from ayaka.lazy import *
 from ayaka.div import div_cmd_arg
 from kiana.file import load_json
-from plugins.bag import get_uid_name, get_name
+from plugins.bag import get_uid_name, get_name, add_money
 
 app = AyakaApp(name="chengyu")
 app.help = {
@@ -16,27 +16,36 @@ chengyu_list = list(whole_bin.keys())
 
 easy_bin: dict = load_json("data/chengyu/easy.json")
 hard_bin: dict = load_json("data/chengyu/hard.json")
-# 这里应该加个计分功能
 
-@app.message()
-async def handle(bot: Bot, event: GroupMessageEvent, device:AyakaDevice):
-    msg = event.get_plaintext()
 
-    # 判断是不是在问问题
+def check(msg):
     r = re.search(
         r'(啥|什么)是\s?(?P<data>[\u4e00-\u9fff]{3,}(.*[\u4e00-\u9fff]{3,})?)', msg)
     if r:
-        return await inquire(bot, event, r.group('data'))
+        return r.group('data'), False
 
     r = re.search(
         r"(?P<data>[\u4e00-\u9fff]{3,}(.*[\u4e00-\u9fff]{3,})?)\s?是(啥|什么)(意思)?", msg)
     if r:
-        return await inquire(bot, event, r.group('data'))
+        return r.group('data'), False
 
     r = re.search(
         r"(?P<data>[\u4e00-\u9fff]{3,}(.*[\u4e00-\u9fff]{3,})?)\s?是成语吗", msg)
     if r:
-        return await inquire(bot, event, r.group('data'), must=True)
+        return r.group('data'), True
+
+
+@app.message()
+async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
+    msg = event.get_plaintext()
+    name = get_name(event)
+
+    # 判断是不是在问问题
+    item = check(msg)
+    if item:
+        msg, must = item
+        await inquire(bot, event, msg, must)
+        return True
 
     # 判断是否需要成语接龙
     # 3字以上的中文，允许包含一个间隔符，例如空格、顿号、逗号、短横线等
@@ -44,9 +53,9 @@ async def handle(bot: Bot, event: GroupMessageEvent, device:AyakaDevice):
     if not r:
         return
 
-    msg = r.group()
     # 删除标点
-    msg = re.sub(r"[^\u4e00-\u9fff]","",msg)
+    msg = r.group()
+    msg = re.sub(r"[^\u4e00-\u9fff]", "", msg)
 
     # 判断是否是成语
     if msg not in chengyu_list:
@@ -56,12 +65,11 @@ async def handle(bot: Bot, event: GroupMessageEvent, device:AyakaDevice):
     ST = Storage(device.id, app.name, 'last')
     last = ST.get("")
 
-    from plugins.bag import add_money
+    # 判断是否成功
     py1 = lazy_pinyin(msg[0])[0]
-
     if py1 == last:
         add_money(1000, event=event)
-        await bot.send(event, f"奖励1000金")
+        await bot.send(event, f"[{name}] 奖励1000金")
         Storage(device.id, app.name, 'members', event.user_id).inc()
 
     # 准备下次
@@ -83,6 +91,7 @@ async def handle(bot: Bot, event: GroupMessageEvent, device:AyakaDevice):
         if i < len(vs):
             ans = vs[i]
 
+    # 是否有回应
     if ans:
         py2 = lazy_pinyin(ans[-1])[0]
         ans = f"[{py}] {ans} [{py2}]"
@@ -96,7 +105,7 @@ async def handle(bot: Bot, event: GroupMessageEvent, device:AyakaDevice):
 
         add_money(10000, event=event)
         ST.set("")
-        await bot.send(event, f"奖励10000金")
+        await bot.send(event, f"[{name}] 奖励10000金")
 
     return True
 
@@ -104,7 +113,7 @@ async def handle(bot: Bot, event: GroupMessageEvent, device:AyakaDevice):
 # 用户询问
 async def inquire(bot: Bot, event: GroupMessageEvent, msg: str, must=False):
     # 删除标点
-    msg = re.sub(r"[^\u4e00-\u9fff]","",msg)
+    msg = re.sub(r"[^\u4e00-\u9fff]", "", msg)
     # 判断是否是成语
     if msg not in chengyu_list:
         if not must:
@@ -118,20 +127,27 @@ async def inquire(bot: Bot, event: GroupMessageEvent, msg: str, must=False):
         ans = f"[{msg}]\n[{ans}]\n\n{val}"
         await bot.send(event, ans)
 
-    return True
+        return True
 
 
-@app.command(["cy","成语"])
-async def handle(bot:Bot, event:GroupMessageEvent, device):
-    cmd, args, arg = div_cmd_arg(["cy","成语"], event.message)
+@app.command(["cy", "成语"])
+async def handle(bot: Bot, event: GroupMessageEvent, device):
+    cmd, args, arg = div_cmd_arg(["cy", "成语"], event.message)
     if not args:
         await bot.send(event, app.help['idle'])
     else:
-        await inquire(bot, event, args[0], must=True)
+        if not await inquire(bot, event, args[0], must=True):
+            rs = []
+            for key in whole_bin:
+                val = whole_bin[key]
+                if arg in val or arg in key:
+                    rs.append(key + "\n" + val)
+            if rs:
+                await bot.send_group_forward_msg(group_id=event.group_id, messages=rs[:10])
 
 
 @app.command("成语统计")
-async def handle(bot:Bot, event:GroupMessageEvent, device:AyakaDevice):
+async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
 
     cmd, args, arg = div_cmd_arg("成语统计", event.message)
     if len(args) >= 1:
