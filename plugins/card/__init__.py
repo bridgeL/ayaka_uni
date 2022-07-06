@@ -10,7 +10,7 @@ from kiana.file import create_file, _save_dict
 
 from .model import BaseJson
 
-app = AyakaApp(name="card-analyse")
+app = AyakaApp(name="card")
 app.help = {
     "idle": "记录并解析卡片内容\n[#解析卡片 <数字>] 解析最近的第n个卡片, 1 <= n <= 5"
 }

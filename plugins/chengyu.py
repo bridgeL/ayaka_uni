@@ -11,11 +11,10 @@ app.help = {
     "idle": "成语接龙（肯定是你输\n[#cy <参数>] 查询成语\n[什么是 <参数>] 查询成语\n[<参数> 是什么] 查询成语\n[#成语统计] 查询历史记录"
 }
 
-whole_bin: dict = load_json("data/chengyu/bin.json")
+whole_bin: dict = load_json("data/chengyu/meaning.json")
 chengyu_list = list(whole_bin.keys())
 
-easy_bin: dict = load_json("data/chengyu/easy.json")
-hard_bin: dict = load_json("data/chengyu/hard.json")
+search_bin: dict = load_json("data/chengyu/search.json")
 
 
 def check(msg):
@@ -75,16 +74,8 @@ async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
     # 准备下次
     ans = None
     py = lazy_pinyin(msg[-1])[0]
-    if py in easy_bin:
-        vs = easy_bin[py]
-
-        # 适当放水，可选择回答越少的放水越多
-        i = randint(0, len(vs)+1)
-        if i < len(vs):
-            ans = vs[i]
-
-    if not ans and py in hard_bin:
-        vs = hard_bin[py]
+    if py in search_bin:
+        vs = search_bin[py]
 
         # 适当放水，可选择回答越少的放水越多
         i = randint(0, len(vs)+1)
