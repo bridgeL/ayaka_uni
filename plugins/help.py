@@ -24,9 +24,13 @@ def get_help(key, state=None):
     if state in _help:
         return f"插件名: {name}\n状态[{state}]的帮助\n{_help[state]}"
     else:
+        ans = f"插件名: {name}\n状态[idle]的帮助\n{_help['idle']}"
+
         states = [f"[{s}]" for s in _help.keys() if s != 'idle']
         ss = " ".join(states)
-        return f"插件名: {name}\n状态[idle]的帮助\n{_help['idle']}\n其他状态：{ss}"
+        if ss:
+            ans += "\n其他状态：{ss}"
+        return ans
 
 
 @app.command(['help', '帮助'])
