@@ -116,6 +116,11 @@ async def handle(bot:Bot, event:GroupMessageEvent, device):
 
 监视触发`@app.supervise()`将无条件在任何触发之前，抢先处理event
 
+# 更新计划
+
+感觉随着talk.json的增加，有必要搞个自动化测试了，看看是否存在消息失效问题
+
+一些talk.json的词条（例如发送某些图片，甚至发送一些合并转发消息）利用cqhttp的数据库取巧了，应该是时候改变了，毕竟cqhttp的数据库中大部分是垃圾，需要清理，不然太大了，而且找起来也不方便
 
 # 拆解笔记
 
