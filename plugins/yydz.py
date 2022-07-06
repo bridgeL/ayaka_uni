@@ -16,7 +16,11 @@ async def handle(bot: Bot, event:GroupMessageEvent, device: AyakaDevice):
     elif len(args) == 1:
         await bot.send(event, "一眼丁真，鉴定为 没得选")
     else:
-        ans = args[randint(0,len(args)-1)]
+        i = randint(0,len(args)*3)
+        if i == 0:
+            ans = ["我全都要","选不选选","选，选不出来"][randint(0,2)]
+        else:
+            ans = args[i%len(args)]
         await bot.send(event, f"一眼丁真，鉴定为 {ans}")
 
 
