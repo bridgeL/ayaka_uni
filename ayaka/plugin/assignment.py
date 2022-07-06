@@ -17,7 +17,7 @@ async def assign_event(bot: Bot, event: Event):
 
 async def deal_message(bot: Bot, event: GroupMessageEvent):
     '''处理消息事件'''
-    get_logger().success(f'{Fore.MAGENTA}{bot.name}{Fore.RESET} 收到群聊消息')
+    # get_logger().success(f'{Fore.MAGENTA}{bot.name}{Fore.RESET} 收到群聊消息')
 
     '''查找device
 
@@ -26,7 +26,7 @@ async def deal_message(bot: Bot, event: GroupMessageEvent):
     '''
     device = AyakaDevice(id=event.group_id)
 
-    app_name = device.get_app_name()
+    # app_name = device.get_app_name()
     # if app_name:
     #     get_logger().success(
     #         f"{Fore.CYAN}{device.id}{Fore.RESET}", "|",
