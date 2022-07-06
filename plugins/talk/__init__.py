@@ -14,7 +14,6 @@ async def talk(bot: Bot, event: GroupMessageEvent, device):
     msg = str(event.message)
     ans = corpus.search(msg, True)
     if ans:
-        print(ans)
         await bot.send(event, Message(ans))
         return True
     return False
