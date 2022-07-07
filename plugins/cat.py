@@ -136,16 +136,16 @@ async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
         cnt = 1
 
     # 付费
-    add_money(-CatGame.unit, event=event)
+    add_money(-CatGame.unit*cnt, event=event)
 
     # 抽卡
     gain, cards, info = game_pull(device.id)
-    card = " ".join(cards)
+    card = "\n".join(cards)
 
     # 生成提示信息
     items = []
     name = get_name(event)
-    items.append(f"[{name}] 花费 {CatGame.unit}金购买了{cnt}张卡 {card}")
+    items.append(f"[{name}] 花费 {CatGame.unit*cnt}金购买了{cnt}张卡 {card}")
 
     # 结算
     money = CatGame.get_cards_value(gain)
@@ -170,11 +170,12 @@ async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
 
     # 抽卡
     gain, cards, info = game_pull(device.id)
+    card = "\n".join(cards)
 
     # 生成提示信息
     items = []
     name = "bot"
-    items.append(f"[{name}] 添加了{cnt}张卡 {cards}")
+    items.append(f"[{name}] 添加了{cnt}张卡 {card}")
 
     # 结算
     money = CatGame.get_cards_value(gain)
