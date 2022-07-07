@@ -4,6 +4,7 @@ __pycache__
 
 !/ayaka
 !/kiana
+!/spider
 !/plugins
 
 !*.py
