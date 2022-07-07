@@ -129,8 +129,8 @@ def game_pull(device_id: int, cnt=1):
     return all_gain, gains, cards, info
 
 
-def get_cnt(event:GroupMessageEvent):
-    cmd, args, arg = div_cmd_arg('cat',event.message)
+def get_cnt(cmds, event: GroupMessageEvent):
+    cmd, args, arg = div_cmd_arg(cmds, event.message)
     try:
         cnt = int(args[0])
         if cnt < 1:
@@ -144,7 +144,7 @@ def get_cnt(event:GroupMessageEvent):
 
 @app.command('cat')
 async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
-    cnt = get_cnt(event)
+    cnt = get_cnt('cat', event)
 
     # 付费
     add_money(-CatGame.unit*cnt, event=event)
@@ -174,7 +174,7 @@ async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
 
 @app.command('catt')
 async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
-    cnt = get_cnt(event)
+    cnt = get_cnt('catt', event)
 
     # 抽卡
     gain, gains, cards, info = game_pull(device.id, cnt)
