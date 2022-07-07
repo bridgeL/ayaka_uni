@@ -154,7 +154,7 @@ async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
     # 生成提示信息
     items = []
     name = get_name(event)
-    items.append(f"[{name}] 花费 {CatGame.unit*cnt}金购买了{cnt}张卡 {card}")
+    items.append(f"[{name}] 花费 {CatGame.unit*cnt}金购买了{cnt}张卡\n{card}")
 
     # 结算
     money = CatGame.get_cards_value(gain)
@@ -180,7 +180,7 @@ async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
     # 生成提示信息
     items = []
     name = "bot"
-    items.append(f"[{name}] 添加了{cnt}张卡 {card}")
+    items.append(f"[{name}] 添加了{cnt}张卡\n{card}")
 
     # 结算
     money = CatGame.get_cards_value(gain)
