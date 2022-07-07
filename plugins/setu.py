@@ -1,6 +1,5 @@
 import os
 import sys
-import requests
 from ayaka.lazy import *
 from pydantic import BaseModel
 from spider import Spider
@@ -9,9 +8,6 @@ app = AyakaApp(name="setu")
 app.help = {
     "idle": '来张涩图\n[#setu] 可以色色'
 }
-
-# 提供header的傀儡罢了
-header_provider = Spider("")
 
 
 class SetuData(BaseModel):
@@ -37,7 +33,7 @@ class SetuData(BaseModel):
 
 
 proxy = 'http://127.0.0.1:7890'
-proxies = {'http': proxy, 'https': proxy}
+api = 'https://api.lolicon.app/setu/v2'
 
 dirpath = "data/setu"
 if not os.path.exists(dirpath):
@@ -47,17 +43,17 @@ if not os.path.exists(dirpath):
 @app.command(['setu', '涩图', '色图', '瑟图'])
 async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
     local = sys.platform == 'win32'
-    print(local)
+    if not local:
+        print(f"setu正在云端运行")
 
     try:
         # 获取url
         if local:
-            res = requests.get('https://api.lolicon.app/setu/v2', proxies=proxies)
+            res = Spider(api, proxy=proxy).get()
         else:
-            res = requests.get('https://api.lolicon.app/setu/v2')
+            res = Spider(api).get()
 
-        res = res.json()
-        res = res["data"][0]
+        res = res.json_data["data"][0]
     except:
         await bot.send(event, 'setu 未获取到图片地址')
         return
@@ -68,13 +64,12 @@ async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
         await bot.send(event, ans)
 
     try:
-        headers = header_provider.get_headers()
         if local:
-            res = requests.get(data.url, headers=headers, stream=True, proxies=proxies)
+            res = Spider(data.url, stream=True, proxy=proxy).get()
         else:
-            res = requests.get(data.url, headers=headers, stream=True)
+            res = Spider(data.url, stream=True).get()
 
-        res = res.content
+        res = res.stream_data
         open(f'{dirpath}/{data.name}', 'wb').write(res)
         await bot.send(event, Message(MessageSegment.image(res)))
     except:

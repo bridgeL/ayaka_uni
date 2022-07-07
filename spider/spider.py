@@ -5,8 +5,7 @@ import requests
 import json
 from random import choice
 
-from kiana.log import Logger
-from .utils import div_url, combine_url
+from .utils import div_url
 
 USER_AGENT_LIST = [
     "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; AcooBrowser; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
@@ -46,12 +45,12 @@ USER_AGENT_LIST = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
 ]
 
-logger = Logger()
 
 class SpiderData(BaseModel):
     type: str
     json_data: Optional[dict]
     html_data: Optional[BeautifulSoup]
+    stream_data: Optional[bytes]
 
     class Config:
         arbitrary_types_allowed = True
@@ -62,11 +61,13 @@ class Spider(BaseModel):
     url: str
     params: dict
     cookie: str
+    proxy: str
+    stream: bool
 
-    def __init__(self, url, params = {}, cookie = "") -> None:
+    def __init__(self, url, params={}, cookie="", proxy="", stream=False) -> None:
         url, _params = div_url(url)
         params = {**_params, **params}
-        super().__init__(url = url, params = params, cookie = cookie)
+        super().__init__(url=url, params=params, cookie=cookie, proxy=proxy, stream=stream)
 
     def get_headers(self):
         USER_AGENT = choice(USER_AGENT_LIST)
@@ -75,7 +76,7 @@ class Spider(BaseModel):
             headers['cookie'] = self.cookie
         return headers
 
-    def set_url(self, url, params = {}):
+    def set_url(self, url, params={}):
         self.url, _params = div_url(url)
         self.params = {**_params, **params}
 
@@ -91,25 +92,35 @@ class Spider(BaseModel):
         except:
             return None
 
-    def get(self, url = '', params = {}):
+    def get(self, url='', params={}):
         # 可以临时修改url、params
         if url:
             self.set_url(url, params)
 
-        logger.info('正在爬取', combine_url(self.url, self.params))
+        config = {
+            "url": self.url,
+            "params": self.params,
+            "headers": self.get_headers()
+        }
 
-        res = requests.get(url = self.url, params = self.params, headers = self.get_headers())
-        content = res.content
+        if self.proxy:
+            config["proxies"] = {'http': self.proxy, 'https': self.proxy}
+
+        if self.stream:
+            config["stream"] = True
+
+        res = requests.get(**config)
+        content:bytes = res.content
+
+        if self.stream:
+            return SpiderData(type='stream', stream_data=content)
 
         data = self.parse_json(content)
         if data:
-            return SpiderData(type = 'json', json_data = data)
+            return SpiderData(type='json', json_data=data)
 
         data = self.parse_html(content)
         if data:
-            return SpiderData(type = 'html', html_data = data)
+            return SpiderData(type='html', html_data=data)
 
-        logger.error('爬取到未知类型数据')
-        logger.error(content)
         raise
-
