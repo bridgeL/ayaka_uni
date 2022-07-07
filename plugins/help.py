@@ -10,8 +10,8 @@ app.help = "帮助文档\n[#help <插件名> <状态>] 查询具体插件在指�
 def get_help(key, state=None):
     if not key:
         names = list(help_dict.keys())
-        names.insert(0, '已安装插件')
-        return '\n'.join(names)
+        names.sort()
+        return "已安装插件\n" + '\n'.join(names)
 
     if key not in help_dict:
         return "没找到相关帮助"
