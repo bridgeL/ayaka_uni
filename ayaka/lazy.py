@@ -5,4 +5,4 @@ from ayaka.plugin.storage import Storage, Cache
 
 from ayaka.onebot_v11.bot import Bot
 from ayaka.onebot_v11.event import GroupMessageEvent
-from ayaka.onebot_v11.message import Message
+from ayaka.onebot_v11.message import Message, MessageSegment

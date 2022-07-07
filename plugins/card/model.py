@@ -1,6 +1,7 @@
 """这里只留存我们关心的数据"""
 
 import re
+from typing import Callable, List
 from kiana.time import get_time_s
 from pydantic import BaseModel
 
@@ -21,7 +22,7 @@ pattern = re.compile(
 
 
 class BaseMeta(BaseModel):
-    urls: list
+    urls: List[str]
     tag: str = ""
     title: str = ""
     desc: str = ""
@@ -54,7 +55,7 @@ class BaseJson(BaseModel):
     prompt: str
     ctime_s: str
     meta_key: str
-    meta_val: BaseMeta
+    meta: BaseMeta
 
     def __init__(self, meta: dict, **data) -> None:
         ctime = data['config']['ctime']
@@ -65,10 +66,21 @@ class BaseJson(BaseModel):
             get_logger().warning("meta具有令人意外的长度")
 
         meta_key = keys[0]
-        meta_val = BaseMeta(meta[meta_key])
+        meta = BaseMeta(meta[meta_key])
         super().__init__(
             meta_key=meta_key,
-            meta_val=meta_val,
+            meta=meta,
             ctime_s=ctime_s,
             **data
         )
+
+
+parser_dict = {}
+
+def register_func(arg, func):
+    parser_dict[arg] = func
+
+
+def is_image_url(url:str):
+    return url.endswith('.jpg') or url.endswith('.png')
+

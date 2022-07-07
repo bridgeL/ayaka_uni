@@ -3,16 +3,20 @@
 """
 
 import json
-from typing import List, Optional
-from ayaka.div import div_cmd_arg
+
 from ayaka.lazy import *
+from ayaka.div import div_cmd_arg
+from ayaka.plugin.module import get_all_module_names, import_all_modules
 from kiana.file import create_file, _save_dict
 
-from .model import BaseJson
+from .model import BaseJson, parser_dict
+
+ms = get_all_module_names("plugins/card/parser")
+import_all_modules(ms)
 
 app = AyakaApp(name="card")
 app.help = {
-    "idle": "记录并解析卡片内容\n[#解析卡片 <数字>] 解析最近的第n个卡片, 1 <= n <= 5"
+    "idle": "记录并解析卡片内容\n[#卡片] 解析最近的卡片"
 }
 
 path = create_file("cards.log", "data")
@@ -31,58 +35,42 @@ async def handle(bot, event: GroupMessageEvent, device: AyakaDevice):
             f.write("\n")
             f.close()
 
-            # 分析
+            # 分析并缓存
             data = BaseJson(**data)
-            last: Optional[List[BaseJson]] = cache.get_cache(device.id, 'last')
-
-            if last is None:
-                last: List[BaseJson] = []
-
-            for i in last:
-                print(i.prompt)
-                print(i.meta_val.urls)
-
-            last.append(data)
-            cache.set_cache(device.id, 'last', data=last[-5:])
+            cache.set_cache(device.id, 'last', data=data)
 
 
 @app.command(["解析卡片", "card", "解析", "卡片"])
 async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
+    data:BaseJson = cache.get_cache(device.id, 'last')
+
+    if data is None:
+        await bot.send(event, "没有捕获到上一张卡片")
+        return
+
     cmd, args, arg = div_cmd_arg(["解析卡片", "card", "解析", "卡片"], event.message)
+    if arg:
+        print(arg)
+        print(parser_dict)
+        if arg in parser_dict:
+            func = parser_dict[arg]
+            await func(bot, event, data)
+            return
 
-    i = 1
-    if args:
-        try:
-            i = int(args[0])
-        except:
-            pass
-        else:
-            if i > 5:
-                await bot.send(event, "最多追踪解析最近的第5个卡片")
-                return
-            if i < 1:
-                i = 1
 
-    last: Optional[List[BaseJson]] = cache.get_cache(device.id, 'last')
+    items = [
+        f"[小程序名称]\n{data.app}",
+        f"[卡片创建时间]\n{data.ctime_s}",
+        f"[卡片描述]\n{data.desc}",
+        f"[卡片提示]\n{data.prompt}",
+        f"[卡片元内容描述]\n{data.meta.desc}",
+        f"[卡片元内容来源]\n{data.meta.tag}",
+        f"[卡片元内容标题]\n{data.meta.title}",
+        "[卡片链接嗅探]"
+    ]
 
-    if last is None:
-        last: List[BaseJson] = []
+    items.extend(data.meta.urls)
 
-    try:
-        data = last[-i]
-    except:
-        await bot.send(event, "卡片过久，无法解析")
-    else:
-        items = []
+    await bot.send_group_forward_msg(event.group_id, items)
 
-        items.append(f"[小程序名称] {data.app}")
-        items.append(f"[卡片创建时间] {data.ctime_s}")
-        items.append(f"[卡片描述] {data.desc}")
-        items.append(f"[卡片提示] {data.prompt}")
-        items.append(f"[卡片元内容描述] {data.meta_val.desc}")
-        items.append(f"[卡片元内容来源] {data.meta_val.tag}")
-        items.append(f"[卡片元内容标题] {data.meta_val.title}")
-        s = "\n\n".join(data.meta_val.urls)
-        items.append(f"[卡片链接嗅探]\n{s}")
 
-        await bot.send_group_forward_msg(event.group_id, items)
