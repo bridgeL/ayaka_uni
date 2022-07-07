@@ -106,33 +106,46 @@ class CatGame:
             return '目前桌面为空'
 
 
-def game_pull(device_id: int):
+def game_pull(device_id: int, cnt=1):
     game: CatGame = cache.get_cache(device_id)
     if not game:
         game = CatGame(device_id)
 
     # 抽卡
-    gain, card = game.pull()
+    gain = []
+    cards = []
+
+    for i in range(cnt):
+        _gain, card = game.pull()
+        gain.extend(_gain)
+        cards.append(card)
 
     # 桌面信息
     info = game.get_info()
 
     cache.set_cache(device_id, data=game)
-    return gain, card, info
+    return gain, cards, info
 
 
 @app.command('cat')
 async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
+    cmd, args, arg = div_cmd_arg('cat',event.message)
+    try:
+        cnt = int(args[0])
+    except:
+        cnt = 1
+
     # 付费
     add_money(-CatGame.unit, event=event)
 
     # 抽卡
-    gain, card, info = game_pull(device.id)
+    gain, cards, info = game_pull(device.id)
+    card = " ".join(cards)
 
     # 生成提示信息
     items = []
     name = get_name(event)
-    items.append(f"[{name}] 花费 {CatGame.unit}金购买了一张卡 {card}")
+    items.append(f"[{name}] 花费 {CatGame.unit}金购买了{cnt}张卡 {card}")
 
     # 结算
     money = CatGame.get_cards_value(gain)
@@ -149,13 +162,19 @@ async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
 
 @app.command('catt')
 async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
+    cmd, args, arg = div_cmd_arg('cat',event.message)
+    try:
+        cnt = int(args[0])
+    except:
+        cnt = 1
+
     # 抽卡
-    gain, card, info = game_pull(device.id)
+    gain, cards, info = game_pull(device.id)
 
     # 生成提示信息
     items = []
     name = "bot"
-    items.append(f"[{name}] 添加了一张卡 {card}")
+    items.append(f"[{name}] 添加了{cnt}张卡 {cards}")
 
     # 结算
     money = CatGame.get_cards_value(gain)
