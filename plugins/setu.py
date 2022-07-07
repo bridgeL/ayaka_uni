@@ -5,9 +5,7 @@ from pydantic import BaseModel
 from spider import Spider
 
 app = AyakaApp(name="setu")
-app.help = {
-    "idle": '来张涩图\n[#setu] 可以色色'
-}
+app.help = '来张涩图\n[#setu] 可以色色'
 
 
 class SetuData(BaseModel):
@@ -25,7 +23,7 @@ class SetuData(BaseModel):
     def get_info(self):
         ans = "\n".join([
             f"[PID] {self.pid}",
-            f"{self.title}",
+            f"[标题] {self.title}",
             f"[作者] {self.author}",
             f"[地址] {self.url}"
         ])

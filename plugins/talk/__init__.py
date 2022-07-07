@@ -4,9 +4,7 @@ from .corpus import Corpus
 corpus = Corpus('data/talk.json')
 
 app = AyakaApp(name='talk')
-app.help = {
-    "idle": "命令式傻瓜聊天机器人",
-}
+app.help = "命令式傻瓜聊天机器人"
 
 
 @app.message()

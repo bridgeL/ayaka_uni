@@ -3,9 +3,7 @@ from ayaka.lazy import *
 from plugins.bag import add_money, get_name
 
 app = AyakaApp(name="pray")
-app.help = {
-    "idle": '祈福\n[#pray] 为群里随机一人（除了自己）祈祷随机金币\n概率公式\n 1% +66666\n 8% +6666\n60% +666\n30% +66\n 1% -66666'
-}
+app.help = '祈福\n[#pray] 为群里随机一人（除了自己）祈祷随机金币\n概率公式\n 1% +66666\n 8% +6666\n60% +666\n30% +66\n 1% -66666'
 
 
 def get_diff():

@@ -3,11 +3,7 @@ from ayaka.lazy import *
 from ayaka.div import div_cmd_arg
 
 app = AyakaApp(name="yydz")
-app.help = {
-    "idle": "选择困难了吗？让丁真来帮你吧\n[#yydz]"
-}
-
-# 仅当idle状态时生效
+app.help = "选择困难了吗？让丁真来帮你吧\n[#yydz]"
 
 
 @app.command(["yydz", "一眼丁真"])

@@ -12,12 +12,11 @@ not_zh = re.compile(r'[^\u4e00-\u9fa5]*')
 
 
 app = AyakaApp(name="genshin_dragon")
-app.help = {
-    "idle":"原神接龙，关键词中了就行"
-}
+app.help = "原神接龙，关键词中了就行"
+
 
 @app.message()
-async def handle(bot:Bot, event:GroupMessageEvent, device):
+async def handle(bot: Bot, event: GroupMessageEvent, device):
     msg = event.get_plaintext().strip()
 
     # 删除所有非汉字
@@ -35,7 +34,6 @@ async def handle(bot:Bot, event:GroupMessageEvent, device):
 
     ans_list = search_bin[py]
     if ans_list:
-        ans = ans_list[randint(0,len(ans_list)-1)]
+        ans = ans_list[randint(0, len(ans_list)-1)]
         await bot.send(event, ans)
         return True
-

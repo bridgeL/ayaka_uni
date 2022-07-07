@@ -19,11 +19,11 @@ class AyakaTrigger(BaseModel):
         if command:
             async def _handler(bot, event, device):
                 get_logger().info(
-                        "触发",
-                        f"插件 {Fore.YELLOW}{app_name}{Fore.RESET}", "|",
-                        f"状态 {Fore.CYAN}{state}{Fore.RESET}", "|",
-                        f"命令 {Fore.GREEN}{command}{Fore.RESET}"
-                    )
+                    "触发",
+                    f"插件 {Fore.YELLOW}{app_name}{Fore.RESET}", "|",
+                    f"状态 {Fore.CYAN}{state}{Fore.RESET}", "|",
+                    f"命令 {Fore.GREEN}{command}{Fore.RESET}"
+                )
                 return await handler(bot, event, device)
         else:
             async def _handler(bot, event, device):
@@ -99,9 +99,13 @@ class AyakaApp:
         return self._help
 
     @help.setter
-    def help(self, help):
-        self._help = help
-        help_dict[self.name] = help
+    def help(self, help: Union[str, dict]):
+        if type(help) is dict:
+            self._help = help
+        else:
+            self._help = {"idle": str(help)}
+
+        help_dict[self.name] = self._help
 
     def get_state(self, device: AyakaDevice):
         return Storage(device.id, self.name, 'state').get(default="idle")

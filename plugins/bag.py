@@ -4,9 +4,7 @@ from ayaka.lazy import *
 
 
 app = AyakaApp(name='bag')
-app.help = {
-    "idle": "背包",
-}
+app.help = "背包"
 
 
 def get_name(event: GroupMessageEvent):
@@ -33,7 +31,8 @@ def add_money(diff: int, gid=None, uid=None, event: GroupMessageEvent = None):
     MONEY_ST.set(money)
     return money
 
-async def get_uid_name(bot:Bot, event:GroupMessageEvent, arg:str):
+
+async def get_uid_name(bot: Bot, event: GroupMessageEvent, arg: str):
     r = re.search(r"\[CQ:at,qq=(?P<uid>\d+)\]", arg)
     if r:
         uid = int(r.group('uid'))

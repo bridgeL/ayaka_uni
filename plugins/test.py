@@ -50,11 +50,11 @@ async def handle(bot: Bot, event: GroupMessageEvent, device):
     # 告知系统该message被该插件使用
     return True
 
+
 # 当idle、test状态时都生效
-
-
 @app.command(["复读", "repeat"], ["idle", "test"])
 async def handle(bot: Bot, event: GroupMessageEvent, device):
+    # arg为 排除了命令外的所有参数 的 字符串之和
     cmd, args, arg = div_cmd_arg(["复读", "repeat"], event.message)
 
     # 复读第二个参数
@@ -63,4 +63,3 @@ async def handle(bot: Bot, event: GroupMessageEvent, device):
     else:
         await bot.send(event, "参数不够多")
 
-    # arg为 排除了命令外的所有参数 的 字符串之和

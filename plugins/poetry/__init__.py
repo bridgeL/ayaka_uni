@@ -105,7 +105,7 @@ async def add_title(bot: Bot, event: GroupMessageEvent, device: AyakaDevice, msg
         await bot.send(event, '不可输入为空')
         return
 
-    cache.set_cache(device.id, 'title', data=msg)
+    cache.set_cache(device.id, data=msg)
     await bot.send(event, f"诗歌名 {msg}")
     await set_state_and_send_help(bot, event, device, "add_2")
 
@@ -184,7 +184,7 @@ async def add_2(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
     # 排除空行
     lines = [line for line in lines if line]
 
-    title = cache.get_cache(device.id, 'title')
+    title = cache.get_cache(device.id)
     poetry.set_poetry(title, lines)
 
     await bot.send(event, f"成功保存诗歌《{title}》")

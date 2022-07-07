@@ -4,9 +4,7 @@ from ayaka.plugin.app import help_dict
 
 
 app = AyakaApp(name='help')
-app.help =  {
-    "idle": "帮助文档\n[#help <插件名> <状态>] 查询具体插件在指定状态下的帮助",
-}
+app.help = "帮助文档\n[#help <插件名> <状态>] 查询具体插件在指定状态下的帮助"
 
 
 def get_help(key, state=None):
@@ -19,7 +17,7 @@ def get_help(key, state=None):
         return "没找到相关帮助"
 
     name = key
-    _help:dict = help_dict[key]
+    _help: dict = help_dict[key]
 
     if state in _help:
         return f"插件名: {name}\n状态[{state}]的帮助\n{_help[state]}"
@@ -28,8 +26,10 @@ def get_help(key, state=None):
 
         states = [f"[{s}]" for s in _help.keys() if s != 'idle']
         ss = " ".join(states)
-        if ss:
-            ans += "\n其他状态：{ss}"
+        if not ss:
+            ss = "无"
+
+        ans += f"\n其他状态：{ss}"
         return ans
 
 

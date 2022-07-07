@@ -7,9 +7,7 @@ from kiana.file import load_json
 from plugins.bag import get_uid_name, get_name, add_money
 
 app = AyakaApp(name="chengyu")
-app.help = {
-    "idle": "成语接龙（肯定是你输\n[#cy <参数>] 查询成语\n[什么是 <参数>] 查询成语\n[<参数> 是什么] 查询成语\n[#成语统计] 查询历史记录"
-}
+app.help = "成语接龙（肯定是你输\n[#cy <参数>] 查询成语\n[什么是 <参数>] 查询成语\n[<参数> 是什么] 查询成语\n[#成语统计] 查询历史记录"
 
 whole_bin: dict = load_json("data/chengyu/meaning.json")
 chengyu_list = list(whole_bin.keys())

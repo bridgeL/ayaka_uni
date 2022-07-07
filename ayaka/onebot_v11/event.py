@@ -188,15 +188,13 @@ class PrivateMessageEvent(MessageEvent):
 
     def get_event_description(self) -> str:
         return (
-            f'Message {self.message_id} from {self.user_id} "'
+            f'Message {self.message_id} from {self.user_id} \n'
             + "".join(
                 map(
-                    lambda x: str(x) if x.is_text(
-                    ) else f"{Fore.CYAN}{x}{Fore.RESET}",
+                    lambda x: str(x) if x.is_text() else f"{Fore.CYAN}{x}{Fore.RESET}",
                     self.message,
                 )
             )
-            + '"'
         )
 
 
@@ -210,15 +208,13 @@ class GroupMessageEvent(MessageEvent):
 
     def get_event_description(self) -> str:
         return (
-            f'Message {self.message_id} from {self.user_id}@[群:{self.group_id}] "'
+            f'Message {self.message_id} from {self.user_id}@[群:{self.group_id}] \n'
             + "".join(
                 map(
-                    lambda x: str(x) if x.is_text(
-                    ) else f"{Fore.CYAN}{x}{Fore.RESET}",
+                    lambda x: str(x) if x.is_text() else f"{Fore.CYAN}{x}{Fore.RESET}",
                     self.message,
                 )
             )
-            + '"'
         )
 
     def get_session_id(self) -> str:
@@ -236,7 +232,7 @@ class MessageSendEvent(Event):
     def get_event_description(self) -> str:
         data = self.dict()
         id = f"[群:{data['group_id']}]" if 'group_id' in data else data['user_id']
-        return f"send to {id} {data['raw_message']}"
+        return f"send to {id} \n{data['raw_message']}"
 
 # Notice Events
 

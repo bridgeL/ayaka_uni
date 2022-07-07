@@ -15,9 +15,7 @@ ms = get_all_module_names("plugins/card/parser")
 import_all_modules(ms)
 
 app = AyakaApp(name="card")
-app.help = {
-    "idle": "记录并解析卡片内容\n[#卡片 <模式>] 解析最近的卡片，可以指定解析模式"
-}
+app.help = "记录并解析卡片内容\n[#卡片 <模式>] 解析最近的卡片，可以指定解析模式"
 
 path = create_file("cards.log", "data")
 cache = Cache()
@@ -37,12 +35,12 @@ async def handle(bot, event: GroupMessageEvent, device: AyakaDevice):
 
             # 分析并缓存
             data = BaseJson(**data)
-            cache.set_cache(device.id, 'last', data=data)
+            cache.set_cache(device.id, data=data)
 
 
 @app.command(["解析卡片", "card", "解析", "卡片"])
 async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
-    data:BaseJson = cache.get_cache(device.id, 'last')
+    data: BaseJson = cache.get_cache(device.id)
 
     if data is None:
         await bot.send(event, "没有捕获到上一张卡片")
@@ -56,7 +54,6 @@ async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
             func = parser_dict[arg]
             await func(bot, event, data)
             return
-
 
     items = [
         f"[小程序名称]\n{data.app}",
@@ -72,5 +69,3 @@ async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
     items.extend(data.meta.urls)
 
     await bot.send_group_forward_msg(event.group_id, items)
-
-
