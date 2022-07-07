@@ -134,7 +134,7 @@ async def handle(bot: Bot, event: GroupMessageEvent, device):
                 if arg in val or arg in key:
                     rs.append(key + "\n" + val)
             if rs:
-                await bot.send_group_forward_msg(group_id=event.group_id, messages=rs[:10])
+                await bot.send_group_forward_msg(event.group_id, rs[:10])
 
 
 @app.command("成语统计")

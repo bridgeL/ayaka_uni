@@ -4,7 +4,7 @@ from kiana.time import get_time_i_pure, get_time_s_pure
 
 app = AyakaApp(name='wty_time')
 app.help = {
-    "idle": "wty现在几点了",
+    "idle": "wty现在几点了\n[#wt]",
 }
 
 

@@ -38,7 +38,7 @@ def mars_decode(cc):
 
 app = AyakaApp(name='mars')
 app.help = {
-    "idle": "火星文转换器",
+    "idle": "火星文转换器\n[#mars <文字>]自动分析转换方向",
 }
 
 @app.command(['mars','火星文'])

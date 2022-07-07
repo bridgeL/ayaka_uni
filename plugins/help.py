@@ -5,7 +5,7 @@ from ayaka.plugin.app import help_dict
 
 app = AyakaApp(name='help')
 app.help =  {
-    "idle": "帮助文档",
+    "idle": "帮助文档\n[#help <插件名> <状态>] 查询具体插件在指定状态下的帮助",
 }
 
 

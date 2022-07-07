@@ -16,7 +16,7 @@ import_all_modules(ms)
 
 app = AyakaApp(name="card")
 app.help = {
-    "idle": "记录并解析卡片内容\n[#卡片] 解析最近的卡片"
+    "idle": "记录并解析卡片内容\n[#卡片 <模式>] 解析最近的卡片，可以指定解析模式"
 }
 
 path = create_file("cards.log", "data")

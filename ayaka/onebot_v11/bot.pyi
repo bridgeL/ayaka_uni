@@ -630,7 +630,6 @@ class Bot:
 
     async def send_group_forward_msg(
       self,
-      *,
       group_id:int,
       messages:List[str],
     ) -> None:
