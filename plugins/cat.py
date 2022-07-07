@@ -112,19 +112,21 @@ def game_pull(device_id: int, cnt=1):
         game = CatGame(device_id)
 
     # 抽卡
-    gain = []
+    all_gain = []
+    gains = []
     cards = []
 
     for i in range(cnt):
-        _gain, card = game.pull()
-        gain.extend(_gain)
+        gain, card = game.pull()
+        gains.append(gain)
         cards.append(card)
+        all_gain.extend(gain)
 
     # 桌面信息
     info = game.get_info()
 
     cache.set_cache(device_id, data=game)
-    return gain, cards, info
+    return all_gain, gains, cards, info
 
 
 def get_cnt(event:GroupMessageEvent):
@@ -148,7 +150,7 @@ async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
     add_money(-CatGame.unit*cnt, event=event)
 
     # 抽卡
-    gain, cards, info = game_pull(device.id, cnt)
+    gain, gains, cards, info = game_pull(device.id, cnt)
     card = "\n".join(cards)
 
     # 生成提示信息
@@ -162,7 +164,8 @@ async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
     if len(gain) == 0:
         items.append(f"[{name}] 颗粒无收")
     else:
-        s = "\n".join(gain)
+        ss = ["\n".join(g) for g in gains if g]
+        s = "\n------\n".join(ss)
         items.append(f"[{name}] 拿走了\n{s}\n总计 {money}金")
 
     items.append(info)
@@ -174,7 +177,7 @@ async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
     cnt = get_cnt(event)
 
     # 抽卡
-    gain, cards, info = game_pull(device.id, cnt)
+    gain, gains, cards, info = game_pull(device.id, cnt)
     card = "\n".join(cards)
 
     # 生成提示信息
@@ -185,7 +188,8 @@ async def bag(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
     # 结算
     money = CatGame.get_cards_value(gain)
     if len(gain) > 0:
-        s = "\n".join(gain)
+        ss = ["\n".join(g) for g in gains if g]
+        s = "\n------\n".join(ss)
         items.append(f"[{name}] 拿走了\n{s}\n总计 {money}金")
 
     items.append(info)
