@@ -5,6 +5,7 @@
 import json
 
 from ayaka.lazy import *
+from ayaka.logger import get_logger
 from ayaka.plugin.module import get_all_module_names, import_all_modules
 from kiana.file import create_file, _save_dict
 
@@ -47,12 +48,13 @@ async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
 
     cmd, args, arg = div_cmd_arg(["解析卡片", "card", "解析", "卡片"], event.message)
     if arg:
-        print(arg)
-        print(parser_dict)
         if arg in parser_dict:
             func = parser_dict[arg]
-            await func(bot, event, data)
-            return
+            try:
+                await func(bot, event, data)
+                return
+            except:
+                get_logger().warning("解析失败，使用默认解析")
 
     items = [
         f"[小程序名称]\n{data.app}",

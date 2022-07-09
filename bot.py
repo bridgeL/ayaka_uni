@@ -1,7 +1,7 @@
 import ayaka
 
 # 使用fastapi作为驱动，返回fastapi对象
-app = ayaka.init(logger_rank="DEBUG")
+app = ayaka.init(logger_rank="INFO")
 
 # 使用uvicorn启动fastapi对象
 if __name__ == "__main__":
