@@ -1065,21 +1065,31 @@ data_bin = {
 }
 data_keys = [key for key in data_bin]
 
+
 def shuffle(array):
     n = len(array)
     for i in range(n):
-        j = randint(i,n-1)
+        j = randint(i, n-1)
         array[i], array[j] = array[j], array[i]
     return array
 
-@app.command(["打官腔", "official","dgq"])
-async def handle(bot: Bot, event, device: AyakaDevice):
-    key = data_keys[randint(0,len(data_keys)-1)]
+
+@app.command(["打官腔", "official", "dgq"])
+async def handle(bot: Bot, event:GroupMessageEvent, device: AyakaDevice):
+    key = data_keys[randint(0, len(data_keys)-1)]
     values = deepcopy(data_bin[key])
     values = shuffle(values)
-    ans = "\n".join(values[:3])
+
+    cmd, args, arg = div_cmd_arg(event.message)
+    i = 3
+    if args:
+        try:
+            i = int(args[0])
+        except:
+            pass
+
+    if i < 3:
+        i = 3
+
+    ans = "\n".join(values[:i])
     await bot.send(event, ans)
-
-
-
-
