@@ -1083,14 +1083,15 @@ def get_values_as_cnt_is(cnt:int):
     if cnt < 3:
         cnt = 3
 
-    rs = set()
+    rs = []
     for i in range(3):
         vs = get_values()
         for v in vs:
-            rs.add(v)
-            if len(rs) == cnt:
-                return list(rs)
-    return list(rs)
+            if v not in rs:
+                rs.append(v)
+                if len(rs) == cnt:
+                    return rs
+    return rs
 
 @app.command(["打官腔", "official", "dgq"])
 async def handle(bot: Bot, event:GroupMessageEvent, device: AyakaDevice):
