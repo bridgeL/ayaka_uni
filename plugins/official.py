@@ -1073,13 +1073,27 @@ def shuffle(array):
         array[i], array[j] = array[j], array[i]
     return array
 
-
-@app.command(["打官腔", "official", "dgq"])
-async def handle(bot: Bot, event:GroupMessageEvent, device: AyakaDevice):
+def get_values():
     key = data_keys[randint(0, len(data_keys)-1)]
     values = deepcopy(data_bin[key])
     values = shuffle(values)
+    return values
 
+def get_values_as_cnt_is(cnt:int):
+    if cnt < 3:
+        cnt = 3
+
+    rs = set()
+    for i in range(3):
+        vs = get_values()
+        for v in vs:
+            rs.add(v)
+            if len(rs) == cnt:
+                return list(rs)
+    return list(rs)
+
+@app.command(["打官腔", "official", "dgq"])
+async def handle(bot: Bot, event:GroupMessageEvent, device: AyakaDevice):
     cmd, args, arg = div_cmd_arg(["打官腔", "official", "dgq"], event.message)
     i = 3
     if args:
@@ -1088,8 +1102,6 @@ async def handle(bot: Bot, event:GroupMessageEvent, device: AyakaDevice):
         except:
             pass
 
-    if i < 3:
-        i = 3
-
-    ans = "\n".join(values[:i])
+    values = get_values_as_cnt_is(i)
+    ans = "\n".join(values)
     await bot.send(event, ans)
