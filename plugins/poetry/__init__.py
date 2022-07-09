@@ -88,9 +88,10 @@ async def speak(bot: Bot, event: GroupMessageEvent, device: AyakaDevice, args):
             break
 
         line = line.rstrip(',.，。、;；')
-        await bot.send(event, line)
+        msg = Message(line)
+        await bot.send(event, msg)
 
-        last_line = line
+        last_line = msg.extract_plain_text()
 
     if i == len(lines) - 1:
         i = 0
