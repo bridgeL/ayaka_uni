@@ -1,6 +1,4 @@
-from math import ceil
 from ayaka.lazy import *
-from ayaka.div import pack_message_nodes, div_cmd_arg, div_arg
 from kiana.check import check_integer
 from plugins.talk import corpus
 
@@ -29,16 +27,6 @@ async def add_q_and_a(bot: Bot, event: GroupMessageEvent, device: AyakaDevice, q
     corpus.teach(q, a)
     await bot.send(event, f"问：{q}\n答：{a}")
     await set_state_and_send_help(bot, event, device, "menu")
-
-
-async def send_group_forward_safe(bot: Bot, event: GroupMessageEvent, items: list):
-    # 自动分割长消息组（不可超过100条）
-    list_max = 80
-    div_num = ceil(len(items) / list_max)
-    divs = [items[i * list_max: (i+1) * list_max] for i in range(div_num)]
-    for div in divs:
-        nodes = pack_message_nodes(div)
-        await bot.call_api('send_group_forward_msg', group_id=event.group_id, messages=nodes)
 
 
 async def change_q_a(bot: Bot, event: GroupMessageEvent, device: AyakaDevice, q_flag: bool):
@@ -85,7 +73,7 @@ async def find_questions(bot: Bot, event: GroupMessageEvent, device: AyakaDevice
         ans = f'[{i}]\n' + corpus_data_2_str(data[i])
         ans_list.append(ans)
 
-    await send_group_forward_safe(bot, event, ans_list)
+    await bot.send_group_forward_msg(event.group_id, ans_list)
 
     id_list = [d["id"] for d in data]
     cache.set_cache(device.id, 'id_list', data = id_list)

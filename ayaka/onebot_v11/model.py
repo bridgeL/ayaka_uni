@@ -1,5 +1,6 @@
+import json
+import dataclasses
 from enum import Enum
-from dataclasses import dataclass
 from http.cookiejar import Cookie, CookieJar
 from typing import (
     IO,
@@ -247,10 +248,18 @@ class Cookies(MutableMapping):
         return f"<Cookies [{cookies_repr}]>"
 
 
-@dataclass
+@dataclasses.dataclass
 class WebSocketServerSetup:
     """WebSocket 服务器路由配置。"""
 
     path: URL  # path should not be absolute, check it by URL.is_absolute() == False
     name: str
     handle_func: Callable
+
+class DataclassEncoder(json.JSONEncoder):
+    """在JSON序列化 `Message` (List[Dataclass]) 时使用的 `JSONEncoder`"""
+
+    def default(self, o):
+        if dataclasses.is_dataclass(o):
+            return dataclasses.asdict(o)
+        return super().default(o)

@@ -1,6 +1,5 @@
 from random import randint
 from ayaka.lazy import *
-from ayaka.utils import div_cmd_arg
 from pydantic import BaseModel
 from plugins.bag import add_money, get_name, get_money
 from asyncio import sleep

@@ -9,7 +9,7 @@ from pydantic import parse_obj_as
 
 
 from ayaka.logger import get_logger
-from ayaka.utils import _b2s, escape, unescape
+from ayaka.utils.parse import _b2s, escape, unescape
 
 from .template import MessageTemplate
 

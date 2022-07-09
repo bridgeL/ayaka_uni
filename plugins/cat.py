@@ -1,6 +1,4 @@
-from re import A
 from typing import List
-from ayaka.div import div_cmd_arg
 from ayaka.lazy import *
 from random import randint
 from plugins.bag import add_money, get_name

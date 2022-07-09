@@ -2,7 +2,6 @@ from random import randint
 import re
 from pypinyin import lazy_pinyin
 from ayaka.lazy import *
-from ayaka.div import div_cmd_arg
 from kiana.file import load_json
 from plugins.bag import get_uid_name, get_name, add_money
 

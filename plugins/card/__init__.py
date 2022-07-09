@@ -5,7 +5,6 @@
 import json
 
 from ayaka.lazy import *
-from ayaka.div import div_cmd_arg
 from ayaka.plugin.module import get_all_module_names, import_all_modules
 from kiana.file import create_file, _save_dict
 

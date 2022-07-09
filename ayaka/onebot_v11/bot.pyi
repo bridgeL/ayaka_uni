@@ -1,20 +1,20 @@
 from typing import Any, Dict, List, Union, Optional
 
 from .event import Event
+from .driver import Driver
 from .message import Message, MessageSegment
 
+
 class Bot:
-    self_id:int
-
-    @property
-    def name(self) -> str: ...
-
     # 尽量不要直接使用call_api，多使用已经编写好的方法，提高代码可阅读性
     async def call_api(self, api: str, **data) -> Any: ...
+
+    def __init__(self, driver: Driver) -> None: ...
 
     async def send(
         self, event: Event, message: Union[str, Message, MessageSegment], **kwargs
     ) -> Any: ...
+
     async def send_private_msg(
         self,
         *,
@@ -35,6 +35,7 @@ class Bot:
 
         """
         ...
+
     async def send_group_msg(
         self,
         *,
@@ -55,6 +56,7 @@ class Bot:
 
         """
         ...
+
     async def send_msg(
         self,
         *,
@@ -79,6 +81,7 @@ class Bot:
 
         """
         ...
+
     async def delete_msg(
         self,
         *,
@@ -95,6 +98,7 @@ class Bot:
 
         """
         ...
+
     async def get_msg(
         self,
         *,
@@ -111,6 +115,7 @@ class Bot:
 
         """
         ...
+
     async def get_forward_msg(
         self,
         *,
@@ -127,6 +132,7 @@ class Bot:
 
         """
         ...
+
     async def send_like(
         self,
         *,
@@ -145,6 +151,7 @@ class Bot:
 
         """
         ...
+
     async def set_group_kick(
         self,
         *,
@@ -165,6 +172,7 @@ class Bot:
 
         """
         ...
+
     async def set_group_ban(
         self,
         *,
@@ -185,6 +193,7 @@ class Bot:
 
         """
         ...
+
     async def set_group_anonymous_ban(
         self,
         *,
@@ -207,6 +216,7 @@ class Bot:
 
         """
         ...
+
     async def set_group_whole_ban(
         self,
         *,
@@ -225,6 +235,7 @@ class Bot:
 
         """
         ...
+
     async def set_group_admin(
         self,
         *,
@@ -245,6 +256,7 @@ class Bot:
 
         """
         ...
+
     async def set_group_anonymous(
         self,
         *,
@@ -263,6 +275,7 @@ class Bot:
 
         """
         ...
+
     async def set_group_card(
         self,
         *,
@@ -283,6 +296,7 @@ class Bot:
 
         """
         ...
+
     async def set_group_name(
         self,
         *,
@@ -301,6 +315,7 @@ class Bot:
 
         """
         ...
+
     async def set_group_leave(
         self,
         *,
@@ -319,6 +334,7 @@ class Bot:
 
         """
         ...
+
     async def set_group_special_title(
         self,
         *,
@@ -341,6 +357,7 @@ class Bot:
 
         """
         ...
+
     async def set_friend_add_request(
         self,
         *,
@@ -361,6 +378,7 @@ class Bot:
 
         """
         ...
+
     async def set_group_add_request(
         self,
         *,
@@ -383,6 +401,7 @@ class Bot:
 
         """
         ...
+
     async def get_login_info(self) -> Dict[str, Any]:
         """
         :说明:
@@ -391,6 +410,7 @@ class Bot:
 
         """
         ...
+
     async def get_stranger_info(
         self,
         *,
@@ -409,6 +429,7 @@ class Bot:
 
         """
         ...
+
     async def get_friend_list(self) -> List[Dict[str, Any]]:
         """
         :说明:
@@ -417,6 +438,7 @@ class Bot:
 
         """
         ...
+
     async def get_group_info(
         self,
         *,
@@ -435,6 +457,7 @@ class Bot:
 
         """
         ...
+
     async def get_group_list(self) -> List[Dict[str, Any]]:
         """
         :说明:
@@ -443,6 +466,7 @@ class Bot:
 
         """
         ...
+
     async def get_group_member_info(
         self,
         *,
@@ -463,6 +487,7 @@ class Bot:
 
         """
         ...
+
     async def get_group_member_list(
         self,
         *,
@@ -479,6 +504,7 @@ class Bot:
 
         """
         ...
+
     async def get_group_honor_info(
         self,
         *,
@@ -497,6 +523,7 @@ class Bot:
 
         """
         ...
+
     async def get_cookies(
         self,
         *,
@@ -513,6 +540,7 @@ class Bot:
 
         """
         ...
+
     async def get_csrf_token(self) -> Dict[str, Any]:
         """
         :说明:
@@ -521,6 +549,7 @@ class Bot:
 
         """
         ...
+
     async def get_credentials(
         self,
         *,
@@ -537,6 +566,7 @@ class Bot:
 
         """
         ...
+
     async def get_record(
         self,
         *,
@@ -555,6 +585,7 @@ class Bot:
 
         """
         ...
+
     async def get_image(
         self,
         *,
@@ -571,6 +602,7 @@ class Bot:
 
         """
         ...
+
     async def can_send_image(self) -> Dict[str, Any]:
         """
         :说明:
@@ -579,6 +611,7 @@ class Bot:
 
         """
         ...
+
     async def can_send_record(self) -> Dict[str, Any]:
         """
         :说明:
@@ -587,6 +620,7 @@ class Bot:
 
         """
         ...
+
     async def get_status(self) -> Dict[str, Any]:
         """
         :说明:
@@ -595,6 +629,7 @@ class Bot:
 
         """
         ...
+
     async def get_version_info(self) -> Dict[str, Any]:
         """
         :说明:
@@ -603,6 +638,7 @@ class Bot:
 
         """
         ...
+
     async def set_restart(
         self,
         *,
@@ -619,6 +655,7 @@ class Bot:
 
         """
         ...
+
     async def clean_cache(self) -> None:
         """
         :说明:
@@ -629,9 +666,9 @@ class Bot:
         ...
 
     async def send_group_forward_msg(
-      self,
-      group_id:int,
-      messages:List[str],
+        self,
+        group_id: int,
+        messages: List[str],
     ) -> None:
         """
         :说明:
@@ -645,5 +682,3 @@ class Bot:
 
         """
         ...
-
-

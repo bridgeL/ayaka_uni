@@ -1,6 +1,4 @@
-from math import ceil
 from ayaka.lazy import *
-from ayaka.div import div_cmd_arg, pack_message_nodes
 from kiana.file import load_json
 
 
@@ -36,14 +34,7 @@ async def emoji(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
             items.append(f"{e} 标签\n" + "\n".join(emojiBin[e]))
         es = items
 
-    await send_group_forward_safe(bot, event, es)
+    await bot.send_group_forward_msg(event.group_id, es)
 
 
-async def send_group_forward_safe(bot: Bot, event: GroupMessageEvent, items: list):
-    # 自动分割长消息组（不可超过100条）
-    list_max = 80
-    div_num = ceil(len(items) / list_max)
-    divs = [items[i * list_max: (i+1) * list_max] for i in range(div_num)]
-    for div in divs:
-        nodes = pack_message_nodes(div)
-        await bot.call_api('send_group_forward_msg', group_id=event.group_id, messages=nodes)
+

@@ -1,10 +1,10 @@
 import re
 from asyncio import sleep as a_sleep
 
-from .my_poetry import Poetry
 from ayaka.lazy import *
-from ayaka.div import div_arg, div_cmd_arg
 from kiana.check import check_integer
+
+from .my_poetry import Poetry
 
 cache = Cache()
 poetry = Poetry()

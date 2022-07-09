@@ -1,8 +1,9 @@
 from typing import Callable, List, Union
 from pydantic import BaseModel
 
-from ayaka.logger import get_logger, Fore
 from kiana.time import get_time_i_pure
+from ayaka.logger import get_logger, Fore
+from ayaka.plugin.module import get_all_module_names, import_all_modules
 
 from .storage import Storage
 from .device import AyakaDevice
@@ -92,7 +93,7 @@ class AyakaApp:
         self.supervise_list = []
         self._help = {"idle": "测试用例"}
 
-        app_list.add_plugin(self)
+        AyakaAppManager.add_plugin(self)
 
     @property
     def help(self):
@@ -105,7 +106,7 @@ class AyakaApp:
         else:
             self._help = {"idle": str(help)}
 
-        help_dict[self.name] = self._help
+        AyakaAppManager.help_dict[self.name] = self._help
 
     def get_state(self, device: AyakaDevice):
         return Storage(device.id, self.name, 'state').get(default="idle")
@@ -155,22 +156,29 @@ class AyakaApp:
     def everyday(self, time_s: str):
         def _decorator(func: Callable):
             timer = Timer(time_s, self.name, func)
-            timer_list.append(timer)
+            AyakaAppManager.add_timer(timer)
             return func
 
         return _decorator
 
 
-class AyakaAppList:
-    def __init__(self) -> None:
-        self.items: List[AyakaApp] = []
+class AyakaAppManager:
+    items: List[AyakaApp] = []
+    timers:List[Timer] = []
+    # 帮助列表
+    help_dict = {}
 
-    def add_plugin(self, plugin: AyakaApp):
-        # # 避免重复添加
-        # for plugin in self.items:
-        #     if plugin.name == plugin.name:
-        #         return
-        self.items.append(plugin)
+    def __init__(self) -> None:
+        module_names = get_all_module_names()
+        import_all_modules(module_names)
+
+    @classmethod
+    def add_plugin(cls, plugin: AyakaApp):
+        cls.items.append(plugin)
+
+    @classmethod
+    def add_timer(cls, timer: Timer):
+        cls.timers.append(timer)
 
     def get_plugin(self, name: str):
         for plugin in self.items:
@@ -210,11 +218,4 @@ class AyakaAppList:
             return triggers
 
 
-# 插件池
-app_list = AyakaAppList()
 
-# timer池
-timer_list: List[Timer] = []
-
-# 帮助列表
-help_dict = {}

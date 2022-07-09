@@ -5,9 +5,10 @@ from pydantic import BaseModel
 from pygtrie import StringTrie
 from pydantic import BaseModel
 
-from ayaka.logger import Fore
-from ayaka.utils import DataclassEncoder
+from ayaka.logger import Fore, get_logger
+from ayaka.utils.result import ResultStore
 
+from .model import DataclassEncoder
 from .message import Message
 
 if TYPE_CHECKING:
@@ -145,12 +146,6 @@ class MessageEvent(Event):
     raw_message: str
     font: int
     sender: Sender
-    to_me: bool = False
-    """
-    :说明: 消息是否与机器人有关
-
-    :类型: ``bool``
-    """
     reply: Optional[Reply] = None
     """
     :说明: 消息中提取的回复消息，内容为 ``get_msg`` API 返回结果
@@ -176,9 +171,6 @@ class MessageEvent(Event):
     def get_session_id(self) -> str:
         return str(self.user_id)
 
-    def is_tome(self) -> bool:
-        return self.to_me
-
 
 class PrivateMessageEvent(MessageEvent):
     """私聊消息"""
@@ -191,7 +183,8 @@ class PrivateMessageEvent(MessageEvent):
             f'Message {self.message_id} from {self.user_id} \n'
             + "".join(
                 map(
-                    lambda x: str(x) if x.is_text() else f"{Fore.CYAN}{x}{Fore.RESET}",
+                    lambda x: str(x) if x.is_text(
+                    ) else f"{Fore.CYAN}{x}{Fore.RESET}",
                     self.message,
                 )
             )
@@ -211,7 +204,8 @@ class GroupMessageEvent(MessageEvent):
             f'Message {self.message_id} from {self.user_id}@[群:{self.group_id}] \n'
             + "".join(
                 map(
-                    lambda x: str(x) if x.is_text() else f"{Fore.CYAN}{x}{Fore.RESET}",
+                    lambda x: str(x) if x.is_text(
+                    ) else f"{Fore.CYAN}{x}{Fore.RESET}",
                     self.message,
                 )
             )
@@ -537,7 +531,7 @@ class MetaEvent(Event):
         )
 
     def get_log_string(self) -> str:
-        pass
+        return ""
 
 
 class LifecycleMetaEvent(MetaEvent):
@@ -555,6 +549,7 @@ class HeartbeatMetaEvent(MetaEvent):
     meta_event_type: Literal["heartbeat"]
     status: Status
     interval: int
+
 
 # 属实奢侈了一把，家人们
 _t = StringTrie(separator=".")
@@ -578,6 +573,38 @@ def get_event_model(event_name) -> List[Type[Event]]:
       - ``List[Type[Event]]``
     """
     return [model.value for model in _t.prefixes("." + event_name)][::-1]
+
+
+def json_to_event(json_data) -> Optional[Event]:
+    if not isinstance(json_data, dict):
+        return None
+
+    if "post_type" not in json_data:
+        ResultStore.add_result(json_data)
+        return
+
+    try:
+        post_type = json_data["post_type"]
+        detail_type = json_data.get(f"{post_type}_type")
+        detail_type = f".{detail_type}" if detail_type else ""
+        sub_type = json_data.get("sub_type")
+        sub_type = f".{sub_type}" if sub_type else ""
+        models = get_event_model(post_type + detail_type + sub_type)
+        for model in models:
+            try:
+                event = model.parse_obj(json_data)
+                break
+            except:
+                get_logger().debug("Event Parser Error", model.__name__, module_name=__name__)
+        else:
+            event = Event.parse_obj(json_data)
+
+        return event
+
+    except:
+        get_logger().exception()
+        info = f"{Fore.RED}Failed to parse event.\nRaw: {json_data}{Fore.RESET}"
+        get_logger().error(info, module_name=__name__)
 
 
 __all__ = [

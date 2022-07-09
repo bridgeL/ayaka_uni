@@ -1,5 +1,4 @@
 from ayaka.lazy import *
-from ayaka.div import div_cmd_arg
 
 app = AyakaApp(name="test")
 app.help = {

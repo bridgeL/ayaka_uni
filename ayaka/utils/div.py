@@ -1,8 +1,7 @@
 """需要大改"""
-
-from typing import List, Union
 from kiana.div import div_head, split_by_space
 from ayaka.onebot_v11.message import Message
+from typing import List, Union
 
 def div_arg(msg:Message):
     '''根据类型和空格分割，得到参数数组'''
@@ -36,20 +35,3 @@ def div_cmd_arg(_cmds:Union[str,list], msg:Message):
         else: args[0] = arg
 
     return cmd, args, left
-
-
-def pack_message_nodes(items:list):
-    '''
-        将数组打包为message_node格式的数组
-    '''
-    nodes = []
-    for m in items:
-        nodes.append({
-            "type": "node",
-            "data": {
-                "name": "Ayaka Bot",
-                "uin": "2317709898",
-                "content": str(m)
-            }
-        })
-    return nodes

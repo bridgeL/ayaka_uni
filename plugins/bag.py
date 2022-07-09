@@ -1,7 +1,5 @@
 import re
-from ayaka.div import div_cmd_arg
 from ayaka.lazy import *
-
 
 app = AyakaApp(name='bag')
 app.help = "背包"

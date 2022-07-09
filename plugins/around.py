@@ -1,6 +1,4 @@
 from ayaka.lazy import *
-from ayaka.div import div_cmd_arg
-
 
 app = AyakaApp(name='around')
 app.help = "环绕字，例如：\n#81 ab C\n\n生成\nababab\nabCab\nababab"

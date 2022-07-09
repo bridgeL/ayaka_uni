@@ -1,7 +1,7 @@
 """这里只留存我们关心的数据"""
 
 import re
-from typing import Callable, List
+from typing import List
 from kiana.time import get_time_s
 from pydantic import BaseModel
 
