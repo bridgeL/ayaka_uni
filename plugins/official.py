@@ -1080,7 +1080,7 @@ async def handle(bot: Bot, event:GroupMessageEvent, device: AyakaDevice):
     values = deepcopy(data_bin[key])
     values = shuffle(values)
 
-    cmd, args, arg = div_cmd_arg(event.message)
+    cmd, args, arg = div_cmd_arg(["打官腔", "official", "dgq"], event.message)
     i = 3
     if args:
         try:
