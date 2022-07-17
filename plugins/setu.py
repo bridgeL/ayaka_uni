@@ -71,5 +71,5 @@ async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
         open(f'{dirpath}/{data.name}', 'wb').write(res)
         await bot.send(event, Message(MessageSegment.image(res)))
     except:
-        await bot.send(event, 'setu 发送图片失败')
+        await bot.send(event, 'setu 太涩了，发不出来(')
         return

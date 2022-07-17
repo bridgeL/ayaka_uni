@@ -32,7 +32,10 @@ class EventManager:
         if isinstance(event, GroupMessageEvent):
             # 将 回复 移动到event对应的属性上
             await self.deal_reply(event)
-            await self.deal_group_message_event(event)
+            try:
+                await self.deal_group_message_event(event)
+            except:
+                get_logger().exception()
 
     async def deal_group_message_event(self, event: GroupMessageEvent):
         '''处理消息事件'''

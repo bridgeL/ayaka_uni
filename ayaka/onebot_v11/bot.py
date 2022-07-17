@@ -64,6 +64,7 @@ class Bot:
 
         except:
             get_logger().error("发送消息失败，具体原因请检查cqhttp输出")
+            raise
 
     def safe_cqhttp_utf8(self, api, data):
         if api in ["send_msg","send_group_msg","send_private_msg"]:
