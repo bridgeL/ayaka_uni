@@ -7,6 +7,17 @@ app.help = {
 }
 
 
+@app.command("t")
+async def handle(bot: Bot, event: GroupMessageEvent, device: AyakaDevice):
+    cmd, args, arg = div_cmd_arg("t", event.message)
+    if len(args) < 2:
+        return
+    args = [int(arg) for arg in args]
+    args[1] = args[1] if args[1] < 100 else 100
+    ans = "".join(chr(i) for i in range(args[0], args[0]+args[1]))
+    await bot.send(event, ans)
+
+
 # 仅当idle状态时生效
 @app.command(["测试", "test"], "idle")
 async def handle(bot: Bot, event, device: AyakaDevice):
@@ -61,4 +72,3 @@ async def handle(bot: Bot, event: GroupMessageEvent, device):
         await bot.send(event, args[1])
     else:
         await bot.send(event, "参数不够多")
-
