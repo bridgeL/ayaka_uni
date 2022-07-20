@@ -7,6 +7,7 @@ from typing_extensions import Protocol
 from ayaka.logger import get_logger, Fore
 from ayaka.utils.parse import escape, unescape
 from ayaka.utils.result import ResultStore
+from ayaka.utils.record import record
 
 from .event import Event
 from .driver import Driver
@@ -42,6 +43,21 @@ class Bot:
         if not websocket:
             get_logger().warning("没有建立ws连接，无法发送消息")
             return
+
+        # record
+        if api == 'send_msg':
+            group = data['message_type'] == 'group'
+            id = data['group_id'] if group else data['user_id']
+            msg = data['message']
+            record(group, id, 'Ayaka Bot', 2317709898, msg)
+
+        elif api == 'send_group_forward_msg':
+            group = True
+            id = data['group_id']
+            ms = [m['data']['content'] for m in data['messages']]
+            msg = '\n'.join(ms)
+            record(group, id, 'Ayaka Bot', 2317709898, msg)
+
 
         # 解决cqhttp莫名其妙被风控的问题
         data = self.safe_cqhttp_utf8(api, data)
@@ -108,7 +124,6 @@ class Bot:
 
           根据 ``event``  向触发事件的主体发送消息。
         """
-
         # 转义处理
         if isinstance(message, str):
             message = escape(message, escape_comma=False)
